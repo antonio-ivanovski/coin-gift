@@ -1,18 +1,17 @@
-import { useState } from "react";
+import { Client } from "server/dist/client";
 import beaver from "../assets/beaver.svg";
-import { hcWithType } from "server/dist/client";
 import { useMutation } from "@tanstack/react-query";
+import { getRouteApi } from "@tanstack/react-router";
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
+type ResponseType = Awaited<ReturnType<Client['hello']['$get']>>;
 
-type ResponseType = Awaited<ReturnType<typeof client.hello.$get>>;
-
-const client = hcWithType(SERVER_URL);
+const routeApi = getRouteApi('/')
 
 export function HomePage() {
+    const {apiClient} = routeApi.useRouteContext();
 	const mutation = useMutation({
 		mutationFn: async () => {
-            const res = await client.hello.$get();
+            const res = await apiClient.hello.$get();
             if (!res.ok) {
                 console.log("Error fetching data");
                 return;
