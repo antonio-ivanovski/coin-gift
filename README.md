@@ -2,22 +2,31 @@
 
 A simple a## 🏗️ Technical Architecture
 
-### Frontend
-- **Framework**: React/Next.js
-- **Deployment**: Github 
-- **Wallet Integration**: Only for senders (MetaMask, Coinbase Wallet, etc.)
-- **UI/UX**: Mobile-first responsive design
+### Monorepo Structure
+- **Client**: React frontend with Vite
+- **Server**: Hono API on Cloudflare Workers
+- **Shared**: Common types and utilities
+- **Package Manager**: Bun
 
-### Backend Service
-- **API**: Node.js/Express or Python/FastAPI
-- **Database**: PostgreSQL or MongoDB
-- **Deployment**: Railway, Render, or AWS
-- **Wallet Management**: Single secure escrow wallet
+### Frontend (`/client`)
+- **Framework**: React with TypeScript
+- **Build Tool**: Vite
+- **Routing**: TanStack Router
+- **Deployment**: Cloudflare Pages
+- **Wallet Integration**: MetaMask for senders
+- **UI/UX**: Simple responsive design
+
+### Backend (`/server`)
+- **Framework**: Hono
+- **Runtime**: Cloudflare Workers
+- **Database**: Cloudflare D1 (SQLite)
+- **Deployment**: Cloudflare Workers
+- **Wallet Management**: Single escrow wallet
 
 ### Supporting Services
-- **Email Service**: SendGrid or similar for notifications
-- **Rate Limiting**: API-level protection against brute-force attacks
-- **Monitoring**: Application and wallet monitoringi## 💡 Key Design Decisions
+- **Email Service**: Basic email notifications (optional)
+- **Rate Limiting**: Simple API rate limiting
+- **Monitoring**: Basic Cloudflare Analyticsi## 💡 Key Design Decisions
 
 ### Secret Generation
 - **Format**: High-entropy random string (32+ characters)
@@ -100,22 +109,15 @@ sequenceDiagram
 
 ## 🏗️ Technical Architecture
 
-### Frontend
-- **Framework**: React
-- **Deployment**: Client-side static hosting
-- **Wallet Integration**: EVM-compatible wallets (MetaMask, Coinbase Wallet, etc.)
-- **UI/UX**: Mobile-first responsive design
+### Shared (`/shared`)
+- **Types**: Common TypeScript interfaces
+- **Utilities**: Shared helper functions
+- **Validation**: Basic input validation
 
-### Smart Contract
-- **Platform**: Base (EVM)
-- **Design**: Factory pattern for escrow instances
-- **Data Storage**: Minimal on-chain data (secret hash, amount, expiration, sender)
-- **Gas Optimization**: Paymaster integration for gasless UX
-
-### Backend Services
-- **Architecture**: Serverless functions
-- **Email Service**: Optional notification system
-- **Rate Limiting**: Prevent brute-force attacks on secret verification
+### Why Cloudflare Stack
+- **Simple**: Single platform for everything
+- **Cost Effective**: Free tier for pet projects
+- **Easy Deployment**: Simple CI/CD integration
 
 ## 💡 Key Design Decisions
 
@@ -139,29 +141,37 @@ sequenceDiagram
 
 ## 🚀 Implementation Phases
 
-### Phase 1: Core MVP
-- [ ] Backend API with database
-- [ ] Escrow wallet setup and management
-- [ ] React frontend with basic UI
+### Phase 1: Simple POC
+**Goal**: Basic working gift escrow application
+
+- [ ] Monorepo setup (client/server/shared)
+- [ ] Hono API with D1 database
+- [ ] React frontend with basic routing
+- [ ] Shared types package
 - [ ] Secret generation and QR codes
-- [ ] Basic create/redeem flow
+- [ ] Create/redeem flow
+- [ ] Deploy to Cloudflare
+- [ ] MetaMask integration
+- [ ] Basic responsive design
 
-### Phase 2: Enhanced UX
-- [ ] Email notifications
-- [ ] Mobile-responsive design
-- [ ] Error handling and recovery
-- [ ] Wallet integration for senders
+**Simple approach**:
+- Single escrow wallet managed by backend
+- SQLite database for state
+- No complex caching or optimization
+- Focus on core functionality
 
-### Phase 3: Production Ready
-- [ ] Security hardening and wallet security
-- [ ] Rate limiting and API protection
-- [ ] Analytics and monitoring
-- [ ] Documentation and deployment
+### Phase 2: Smart Contract Version (Future)
+**Goal**: Decentralized escrow on Base network
 
-### Phase 4: Future Enhancements
-- [ ] Smart contract migration option
-- [ ] Multi-token support
-- [ ] Advanced features and integrations
+- [ ] Simple escrow smart contract
+- [ ] On-chain secret verification
+- [ ] Update frontend for contract interaction
+- [ ] Basic multi-wallet support
+
+**If there's demand**:
+- Move escrow logic to smart contracts
+- Trustless operation
+- Keep the same simple UX
 
 ## 🔒 Security Considerations
 
@@ -174,20 +184,17 @@ sequenceDiagram
 - **Time-based Recovery**: Sender can recover funds after expiration or error correction period
 - **Custodial Risk Mitigation**: Regular security audits and monitoring
 
-## 📊 Scalability Considerations
+## 📊 Simple Architecture
 
-**Initial Target**: ~100 escrows for POC testing  
-**Architecture**: Traditional backend with horizontal scaling capability  
-**Database**: Optimized for read/write patterns with proper indexing  
-**Blockchain**: Base provides low fees and fast confirmations  
-**Wallet Management**: Single escrow wallet can handle multiple concurrent transactions  
-**Monitoring**: Track usage patterns, wallet balance, and system performance  
+**Target**: Small-scale pet project (~10-100 escrows)  
+**Database**: Simple SQLite database (Cloudflare D1)  
+**Blockchain**: Base network for low fees  
+**Wallet Management**: Single escrow wallet  
+**Monitoring**: Basic usage tracking  
 
-## 🔄 Migration Path to Decentralization
+## 🔄 Future Evolution
 
-1. **Phase 1 (Current)**: Backend service for fast POC development
-2. **Phase 2**: Optional smart contract integration for advanced users
-3. **Phase 3**: Full decentralization with Paymaster when proven demand exists
-4. **Phase 4**: Complete trustless operation
+1. **Phase 1**: Simple backend escrow service
+2. **Phase 2**: Smart contract implementation
 
-This approach allows rapid iteration and user validation while maintaining a clear path to full decentralization.
+Keep it simple initially, then add complexity only if needed.
