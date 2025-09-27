@@ -7,10 +7,14 @@ type RouterContext = {
 };
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-	component: () => (
+	component: Component,
+});
+
+function Component() {
+	return (
 		<>
 			<Outlet />
 			<TanStackRouterDevtools />
 		</>
-	),
-});
+	);
+}
