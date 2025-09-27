@@ -119,7 +119,7 @@ function ProgressSteps({ currentStep }: ProgressStepsProps) {
           <div key={step} className="flex items-center">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all ${
               currentStep >= step 
-                ? 'bg-white text-purple-600 shadow-lg' 
+                ? 'bg-white text-orange-600 shadow-lg' 
                 : 'bg-white/30 text-white'
             }`}>
               {step}
@@ -151,8 +151,8 @@ function AmountSelection({ giftData, onAmountChange }: AmountSelectionProps) {
               onClick={() => onAmountChange(amount, Math.round(amount * SATS_PER_BTC))}
               className={`p-3 rounded-xl font-bold transition-all border-2 ${
                 Math.abs(giftData.amount.btc - amount) < 0.0001
-                  ? 'bg-orange-500 text-white border-orange-600 shadow-lg scale-105'
-                  : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-orange-100 hover:border-orange-300'
+                  ? 'bg-amber-500 text-white border-amber-600 shadow-lg scale-105'
+                  : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-amber-50 hover:border-amber-200'
               }`}
             >
               {amount} BTC
@@ -205,8 +205,8 @@ function OccasionPicker({ giftData, onOccasionSelect }: OccasionPickerProps) {
             onClick={() => onOccasionSelect(preset)}
             className={`p-3 rounded-xl font-medium transition-all border-2 text-left ${
               giftData.occasionType === preset.occasionType
-                ? 'bg-pink-500 text-white border-pink-600 shadow-lg'
-                : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-pink-100 hover:border-pink-300'
+                ? 'bg-amber-500 text-white border-amber-600 shadow-lg'
+                : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-amber-50 hover:border-amber-200'
             }`}
           >
             {preset.emoji} {preset.title.replace('!', '')}
@@ -258,7 +258,7 @@ function RedemptionItem({ title, icon, value, isRevealed, onToggleReveal, onCopy
         <button
           type="button"
           onClick={onToggleReveal}
-          className="p-3 rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+          className="p-3 rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition-colors"
         >
           {isRevealed ? '🙈' : '👁️'}
         </button>
@@ -288,7 +288,7 @@ function QRCodeSection({ onDownload }: QRCodeSectionProps) {
         <button
           type="button"
           onClick={onDownload}
-          className="bg-purple-500 text-white px-4 py-2 rounded-xl hover:bg-purple-600 transition-colors font-medium"
+          className="bg-amber-500 text-white px-4 py-2 rounded-xl hover:bg-amber-600 transition-colors font-medium"
         >
           📥 Download PNG
         </button>
@@ -364,7 +364,7 @@ export function CreateGiftPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-orange-400 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-300 via-amber-400 to-yellow-300 p-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8 pt-8">
@@ -409,7 +409,7 @@ export function CreateGiftPage() {
                 value={giftData.title}
                 onChange={(e) => setGiftData(prev => ({ ...prev, title: e.target.value }))}
                 placeholder="Happy Birthday!"
-                className="w-full p-4 rounded-xl border-2 border-gray-200 focus:border-pink-500 focus:outline-none font-semibold"
+                className="w-full p-4 rounded-xl border-2 border-gray-200 focus:border-amber-400 focus:outline-none font-semibold"
                 maxLength={100}
               />
               <div className="text-xs text-gray-500 mt-1">
@@ -427,7 +427,7 @@ export function CreateGiftPage() {
                 value={giftData.message}
                 onChange={(e) => setGiftData(prev => ({ ...prev, message: e.target.value }))}
                 placeholder="Happy birthday! Hope you enjoy your first crypto! 🎉"
-                className="w-full p-4 rounded-xl border-2 border-gray-200 focus:border-pink-500 focus:outline-none resize-none"
+                className="w-full p-4 rounded-xl border-2 border-gray-200 focus:border-amber-400 focus:outline-none resize-none"
                 rows={3}
                 maxLength={250}
               />
@@ -454,9 +454,9 @@ export function CreateGiftPage() {
                 value={giftData.notificationEmail}
                 onChange={(e) => setGiftData(prev => ({ ...prev, notificationEmail: e.target.value }))}
                 placeholder="your@email.com"
-                className="w-full p-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none"
+                className="w-full p-4 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none"
               />
-              <div className="text-xs text-gray-500 mt-2 bg-blue-50 p-2 rounded-lg">
+              <div className="text-xs text-gray-500 mt-2 bg-orange-50 p-2 rounded-lg border border-orange-100">
                 📧 This email will receive status notifications only. <strong>The secret redemption code will NOT be sent to this email</strong>. 
                 Only you will have access to the redemption code to share with your recipient.
               </div>
@@ -470,7 +470,7 @@ export function CreateGiftPage() {
             <StepHeader icon="💳" title="Connect Wallet & Pay" />
 
             <div className="text-center py-8">
-              <div className="bg-gradient-to-r from-blue-100 to-purple-100 p-6 rounded-2xl mb-6">
+              <div className="bg-gradient-to-r from-orange-100 to-amber-100 p-6 rounded-2xl mb-6 border border-orange-200">
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Transaction Summary</h3>
                 <div className="text-3xl font-black text-orange-800">
                   {giftData.amount.btc.toFixed(6)} BTC
@@ -491,7 +491,7 @@ export function CreateGiftPage() {
               <button
                 type="button"
                 onClick={handlePayment}
-                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-4 px-8 rounded-2xl text-xl shadow-lg transition-all transform hover:scale-105"
+                className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-bold py-4 px-8 rounded-2xl text-xl shadow-lg transition-all transform hover:scale-105 border border-amber-400"
               >
                 🦊 Connect MetaMask & Pay
               </button>
@@ -571,7 +571,7 @@ export function CreateGiftPage() {
                   setRevealedUrl(false);
                   setCopiedItems(new Set());
                 }}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 px-6 rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105"
+                className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white font-bold py-3 px-6 rounded-2xl hover:from-amber-600 hover:to-yellow-600 transition-all transform hover:scale-105 border border-amber-400"
               >
                 🎁 Create Another Gift
               </button>
