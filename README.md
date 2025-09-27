@@ -1,264 +1,193 @@
-# bhvr 🦫
+# 🎁 Coin Gift - Crypto Escrow Gift Application
 
-![cover](https://cdn.stevedylan.dev/ipfs/bafybeievx27ar5qfqyqyud7kemnb5n2p4rzt2matogi6qttwkpxonqhra4)
+A simple a## 🏗️ Technical Architecture
 
-A full-stack TypeScript monorepo starter with shared types, using Bun, Hono, Vite, and React.
+### Frontend
+- **Framework**: React/Next.js
+- **Deployment**: Github 
+- **Wallet Integration**: Only for senders (MetaMask, Coinbase Wallet, etc.)
+- **UI/UX**: Mobile-first responsive design
 
-## Why bhvr?
+### Backend Service
+- **API**: Node.js/Express or Python/FastAPI
+- **Database**: PostgreSQL or MongoDB
+- **Deployment**: Railway, Render, or AWS
+- **Wallet Management**: Single secure escrow wallet
 
-While there are plenty of existing app building stacks out there, many of them are either bloated, outdated, or have too much of a vendor lock-in. bhvr is built with the opinion that you should be able to deploy your client or server in any environment while also keeping type safety.
+### Supporting Services
+- **Email Service**: SendGrid or similar for notifications
+- **Rate Limiting**: API-level protection against brute-force attacks
+- **Monitoring**: Application and wallet monitoringi## 💡 Key Design Decisions
 
-## Features
+### Secret Generation
+- **Format**: High-entropy random string (32+ characters)
+- **Encoding**: Base64/Base58 for URL safety
+- **Sharing**: Direct URL links and QR codes
+- **Security**: Hashed in database, never stored in plaintext
 
-- **Full-Stack TypeScript**: End-to-end type safety between client and server
-- **Shared Types**: Common type definitions shared between client and server
-- **Monorepo Structure**: Organized as a workspaces-based monorepo with Turbo for build orchestration
-- **Modern Stack**:
-  - [Bun](https://bun.sh) as the JavaScript runtime and package manager
-  - [Hono](https://hono.dev) as the backend framework
-  - [Vite](https://vitejs.dev) for frontend bundling
-  - [React](https://react.dev) for the frontend UI
-  - [Turbo](https://turbo.build) for monorepo build orchestration and caching
+### Economic Model
+- **Escrow Limits**: $1 minimum, $1000 maximum (POC)
+- **Transaction Fees**: Sender covers Base network fees
+- **Operational Costs**: Covered by optional donations
+- **Recovery**: Wrong amounts recoverable after 5 minutes
 
-## Project Structure
+### Security Features
+- **Wallet Security**: Multi-sig or hardware wallet for escrow funds
+- **Rate Limiting**: API-level protection against brute-force attacks
+- **Expiration**: Default 30-day expiration with sender recovery
+- **Audit Trail**: Complete database logging for transparency
+- **HTTPS**: Secure communication protocols
+- **Data Encryption**: Sensitive data encrypted at resto friends and family. This application serves as a temporary escrow for crypto transactions, allowing users to send crypto gifts that recipients can claim using a secret code.
 
-```
-.
-├── client/               # React frontend
-├── server/               # Hono backend
-├── shared/               # Shared TypeScript definitions
-│   └── src/types/        # Type definitions used by both client and server
-├── package.json          # Root package.json with workspaces
-└── turbo.json            # Turbo configuration for build orchestration
-```
+## 🎯 Overview
 
-### Server
+**Target Use Case**: Send crypto gifts for birthdays, holidays, or special occasions  
+**Architecture**: Backend Service with Escrow Wallet  
+**Supported Assets**: ETH on Base (POC)  
+**License**: Open Source  
 
-bhvr uses Hono as a backend API for its simplicity and massive ecosystem of plugins. If you have ever used Express then it might feel familiar. Declaring routes and returning data is easy.
+## ✨ Key Features
 
-```
-server
-├── bun.lock
-├── package.json
-├── README.md
-├── src
-│   └── index.ts
-└── tsconfig.json
-```
+- 🔐 **Secure Escrow**: Backend service with dedicated escrow wallet
+- 🎲 **High-Entropy Secrets**: URL/QR-shareable secret codes
+- ⏰ **Configurable Expiration**: Default 30 days, sender recoverable
+- 💰 **Amount Limits**: $1 - $1000 (POC)
+- 📧 **Email Notifications**: Optional alerts for all parties
+- 🚀 **Simple UX**: No wallet required for recipients
+- 📱 **Mobile-Friendly**: QR codes and responsive design
 
-```typescript src/index.ts
-import { Hono } from 'hono'
-import { cors } from 'hono/cors'
-import type { ApiResponse } from 'shared/dist'
+## 🔄 Application Flow
 
-const app = new Hono()
+```mermaid
+sequenceDiagram
+    participant A as Party A (Sender)
+    participant App as Web App
+    participant DB as Database
+    participant Wallet as Escrow Wallet
+    participant B as Party B (Recipient)
+    participant Email as Email Service
 
-app.use(cors())
+    A->>App: Create escrow ($X ETH)
+    App->>App: Generate high-entropy secret
+    App->>DB: Store escrow (secret hash, amount, expiration, pending)
+    A->>Wallet: Send ETH to escrow wallet address
+    Wallet->>App: Confirm ETH received (webhook/polling)
+    App->>DB: Update escrow status to active
+    App->>A: Display secret (raw + QR + URL)
+    App->>Email: Send creation confirmation (optional)
+    
+    Note over A,B: Party A shares secret via secure channel
+    
+    B->>App: Enter secret code + recipient wallet address
+    App->>DB: Verify secret hash & check expiration
+    App->>Wallet: Initiate ETH transfer to recipient
+    Wallet->>B: Transfer ETH directly to recipient wallet
+    Wallet->>App: Confirm transfer completed
+    App->>DB: Mark escrow as completed
+    App->>Email: Send redemption confirmation (optional)
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
-
-app.get('/hello', async (c) => {
-
-  const data: ApiResponse = {
-    message: "Hello BHVR!",
-    success: true
-  }
-
-  return c.json(data, { status: 200 })
-})
-
-export default app
-```
-
-If you wanted to add a database to Hono you can do so with a multitude of Typescript libraries like [Supabase](https://supabase.com), or ORMs like [Drizzle](https://orm.drizzle.team/docs/get-started) or [Prisma](https://www.prisma.io/orm)
-
-### Client
-
-bhvr uses Vite + React Typescript template, which means you can build your frontend just as you would with any other React app. This makes it flexible to add UI components like [shadcn/ui](https://ui.shadcn.com) or routing using [React Router](https://reactrouter.com/start/declarative/installation).
-
-```
-client
-├── eslint.config.js
-├── index.html
-├── package.json
-├── public
-│   └── vite.svg
-├── README.md
-├── src
-│   ├── App.css
-│   ├── App.tsx
-│   ├── assets
-│   ├── index.css
-│   ├── main.tsx
-│   └── vite-env.d.ts
-├── tsconfig.app.json
-├── tsconfig.json
-├── tsconfig.node.json
-└── vite.config.ts
-```
-
-```typescript src/App.tsx
-import { useState } from 'react'
-import beaver from './assets/beaver.svg'
-import { ApiResponse } from 'shared'
-import './App.css'
-
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000"
-
-function App() {
-  const [data, setData] = useState<ApiResponse | undefined>()
-
-  async function sendRequest() {
-    try {
-      const req = await fetch(`${SERVER_URL}/hello`)
-      const res: ApiResponse = await req.json()
-      setData(res)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  return (
-    <>
-      <div>
-        <a href="https://github.com/stevedylandev/bhvr" target="_blank">
-          <img src={beaver} className="logo" alt="beaver logo" />
-        </a>
-      </div>
-      <h1>bhvr</h1>
-      <h2>Bun + Hono + Vite + React</h2>
-      <p>A typesafe fullstack monorepo</p>
-      <div className="card">
-        <button onClick={sendRequest}>
-          Call API
-        </button>
-        {data && (
-          <pre className='response'>
-            <code>
-            Message: {data.message} <br />
-            Success: {data.success.toString()}
-            </code>
-          </pre>
-        )}
-      </div>
-      <p className="read-the-docs">
-        Click the beaver to learn more
-      </p>
-    </>
-  )
-}
-
-export default App
+    Note over A,Wallet: Cancellation/Recovery Flow
+    alt After 5 minutes (wrong amount) or expiration
+        A->>App: Request cancellation with secret
+        App->>DB: Verify ownership & timing rules
+        App->>Wallet: Initiate ETH return to sender
+        Wallet->>A: Transfer ETH directly to sender wallet
+        Wallet->>App: Confirm return completed
+        App->>DB: Mark escrow as cancelled
+        App->>Email: Send cancellation confirmation (optional)
+    end
 ```
 
-### Shared
+## 🏗️ Technical Architecture
 
-The Shared package is used for anything you want to share between the Server and Client. This could be types or libraries that you use in both environments.
+### Frontend
+- **Framework**: React
+- **Deployment**: Client-side static hosting
+- **Wallet Integration**: EVM-compatible wallets (MetaMask, Coinbase Wallet, etc.)
+- **UI/UX**: Mobile-first responsive design
 
-```
-shared
-├── package.json
-├── src
-│   ├── index.ts
-│   └── types
-│       └── index.ts
-└── tsconfig.json
-```
+### Smart Contract
+- **Platform**: Base (EVM)
+- **Design**: Factory pattern for escrow instances
+- **Data Storage**: Minimal on-chain data (secret hash, amount, expiration, sender)
+- **Gas Optimization**: Paymaster integration for gasless UX
 
-Inside the `src/index.ts` we export any of our code from the folders so it's usable in other parts of the monorepo
+### Backend Services
+- **Architecture**: Serverless functions
+- **Email Service**: Optional notification system
+- **Rate Limiting**: Prevent brute-force attacks on secret verification
 
-```typescript
-export * from "./types"
-```
+## 💡 Key Design Decisions
 
-By running `bun run dev` or `bun run build` it will compile and export the packages from `shared` so it can be used in either `client` or `server`
+### Secret Generation
+- **Format**: High-entropy random string (32+ characters)
+- **Encoding**: Base58 for URL safety
+- **Sharing**: Direct URL links and QR codes
+- **Security**: Hashed on-chain, never stored in plaintext
 
-```typescript
-import { ApiResponse } from 'shared'
-```
+### Economic Model
+- **Escrow Limits**: $1 minimum, $1000 maximum (POC)
+- **Gas Coverage**: Paymaster covers transaction fees
+- **Donations**: Optional contributions to support the platform
+- **Recovery**: Wrong amounts recoverable after 5 minutes
 
-## Getting Started
+### Security Features
+- **Rate Limiting**: Prevent brute-force secret attempts
+- **Expiration**: Default 30-day expiration with sender recovery
+- **Audit Trail**: Transaction logging for transparency
+- **HTTPS**: Secure communication protocols
 
-### Quick Start
+## 🚀 Implementation Phases
 
-You can start a new bhvr project using the [CLI](https://github.com/stevedylandev/create-bhvr)
+### Phase 1: Core MVP
+- [ ] Backend API with database
+- [ ] Escrow wallet setup and management
+- [ ] React frontend with basic UI
+- [ ] Secret generation and QR codes
+- [ ] Basic create/redeem flow
 
-```bash
-bun create bhvr
-```
+### Phase 2: Enhanced UX
+- [ ] Email notifications
+- [ ] Mobile-responsive design
+- [ ] Error handling and recovery
+- [ ] Wallet integration for senders
 
-### Installation
+### Phase 3: Production Ready
+- [ ] Security hardening and wallet security
+- [ ] Rate limiting and API protection
+- [ ] Analytics and monitoring
+- [ ] Documentation and deployment
 
-```bash
-# Install dependencies for all workspaces
-bun install
-```
+### Phase 4: Future Enhancements
+- [ ] Smart contract migration option
+- [ ] Multi-token support
+- [ ] Advanced features and integrations
 
-### Development
+## 🔒 Security Considerations
 
-```bash
-# Run all workspaces in development mode with Turbo
-bun run dev
+- **Secret Complexity**: High-entropy generation prevents brute-force attacks
+- **Rate Limiting**: API-level protection against automated attacks
+- **Wallet Security**: Multi-sig or hardware wallet for escrow funds
+- **Database Security**: Encrypted sensitive data and secure access controls
+- **Communication Security**: HTTPS for all data transmission
+- **Audit Trail**: Complete database logging for transparency
+- **Time-based Recovery**: Sender can recover funds after expiration or error correction period
+- **Custodial Risk Mitigation**: Regular security audits and monitoring
 
-# Or run individual workspaces directly
-bun run dev:client    # Run the Vite dev server for React
-bun run dev:server    # Run the Hono backend
-```
+## 📊 Scalability Considerations
 
-### Building
+**Initial Target**: ~100 escrows for POC testing  
+**Architecture**: Traditional backend with horizontal scaling capability  
+**Database**: Optimized for read/write patterns with proper indexing  
+**Blockchain**: Base provides low fees and fast confirmations  
+**Wallet Management**: Single escrow wallet can handle multiple concurrent transactions  
+**Monitoring**: Track usage patterns, wallet balance, and system performance  
 
-```bash
-# Build all workspaces with Turbo
-bun run build
+## 🔄 Migration Path to Decentralization
 
-# Or build individual workspaces directly
-bun run build:client  # Build the React frontend
-bun run build:server  # Build the Hono backend
-```
+1. **Phase 1 (Current)**: Backend service for fast POC development
+2. **Phase 2**: Optional smart contract integration for advanced users
+3. **Phase 3**: Full decentralization with Paymaster when proven demand exists
+4. **Phase 4**: Complete trustless operation
 
-### Additional Commands
-
-```bash
-# Lint all workspaces
-bun run lint
-
-# Type check all workspaces
-bun run type-check
-
-# Run tests across all workspaces
-bun run test
-```
-
-### Deployment
-
-Deplying each piece is very versatile and can be done numerous ways, and exploration into automating these will happen at a later date. Here are some references in the meantime.
-
-**Client**
-- [Orbiter](https://orbiter.host)
-- [GitHub Pages](https://vite.dev/guide/static-deploy.html#github-pages)
-- [Netlify](https://vite.dev/guide/static-deploy.html#netlify)
-- [Cloudflare Pages](https://vite.dev/guide/static-deploy.html#cloudflare-pages)
-
-**Server**
-- [Cloudflare Worker](https://gist.github.com/stevedylandev/4aa1fc569bcba46b7169193c0498d0b3)
-- [Bun](https://hono.dev/docs/getting-started/bun)
-- [Node.js](https://hono.dev/docs/getting-started/nodejs)
-
-## Type Sharing
-
-Types are automatically shared between the client and server thanks to the shared package and TypeScript path aliases. You can import them in your code using:
-
-```typescript
-import { ApiResponse } from 'shared/types';
-```
-
-## Learn More
-
-- [Bun Documentation](https://bun.sh/docs)
-- [Vite Documentation](https://vitejs.dev/guide/)
-- [React Documentation](https://react.dev/learn)
-- [Hono Documentation](https://hono.dev/docs)
-- [Turbo Documentation](https://turbo.build/docs)
-- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+This approach allows rapid iteration and user validation while maintaining a clear path to full decentralization.
