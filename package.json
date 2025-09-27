@@ -18,11 +18,9 @@
     "build": "turbo build",
     "build:client": "turbo build --filter=client",
     "build:server": "turbo build --filter=server",
-    "lint": "biome lint .",
     "type-check": "turbo type-check",
     "test": "turbo test",
-    "postinstall": "turbo build --filter=shared --filter=server",
-    "format": "biome format . --write"
+    "postinstall": "turbo build --filter=shared --filter=server"
   },
   "keywords": [
     "bun",
@@ -33,7 +31,6 @@
     "turbo"
   ],
   "devDependencies": {
-    "@biomejs/biome": "^2.2.4",
     "bun-types": "latest",
     "turbo": "^2.5.8"
   },

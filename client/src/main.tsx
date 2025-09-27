@@ -1,14 +1,14 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./index.css";
 
 const queryClient = new QueryClient();
 
+import { hcWithType } from "server/dist/client";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
-import { hcWithType } from "server/dist/client";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
 const apiClient = hcWithType(SERVER_URL);

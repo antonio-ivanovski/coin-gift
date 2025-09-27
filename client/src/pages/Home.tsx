@@ -1,22 +1,22 @@
-import { Client } from "server/dist/client";
-import beaver from "../assets/beaver.svg";
 import { useMutation } from "@tanstack/react-query";
 import { getRouteApi } from "@tanstack/react-router";
+import type { Client } from "server/dist/client";
+import beaver from "../assets/beaver.svg";
 
-type ResponseType = Awaited<ReturnType<Client['hello']['$get']>>;
+type ResponseType = Awaited<ReturnType<Client["hello"]["$get"]>>;
 
-const routeApi = getRouteApi('/')
+const routeApi = getRouteApi("/");
 
 export function HomePage() {
-    const {apiClient} = routeApi.useRouteContext();
+	const { apiClient } = routeApi.useRouteContext();
 	const mutation = useMutation({
 		mutationFn: async () => {
-            const res = await apiClient.hello.$get();
-            if (!res.ok) {
-                console.log("Error fetching data");
-                return;
-            }
-            return await res.json() as Awaited<ReturnType<ResponseType["json"]>>;
+			const res = await apiClient.hello.$get();
+			if (!res.ok) {
+				console.log("Error fetching data");
+				return;
+			}
+			return (await res.json()) as Awaited<ReturnType<ResponseType["json"]>>;
 		},
 	});
 
