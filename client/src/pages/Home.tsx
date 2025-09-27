@@ -10,23 +10,14 @@ type ResponseType = Awaited<ReturnType<typeof client.hello.$get>>;
 const client = hcWithType(SERVER_URL);
 
 export function HomePage() {
-	const [data, setData] = useState<
-		Awaited<ReturnType<ResponseType["json"]>> | undefined
-	>();
-
-	const { mutate: sendRequest } = useMutation({
+	const mutation = useMutation({
 		mutationFn: async () => {
-			try {
-				const res = await client.hello.$get();
-				if (!res.ok) {
-					console.log("Error fetching data");
-					return;
-				}
-				const data = await res.json();
-				setData(data);
-			} catch (error) {
-				console.log(error);
-			}
+            const res = await client.hello.$get();
+            if (!res.ok) {
+                console.log("Error fetching data");
+                return;
+            }
+            return await res.json() as Awaited<ReturnType<ResponseType["json"]>>;
 		},
 	});
 
@@ -49,7 +40,7 @@ export function HomePage() {
 			<div className="flex items-center gap-4">
 				<button
 					type="button"
-					onClick={() => sendRequest()}
+					onClick={() => mutation.mutate()}
 					className="bg-black text-white px-2.5 py-1.5 rounded-md"
 				>
 					Call API
@@ -63,11 +54,11 @@ export function HomePage() {
 					Docs
 				</a>
 			</div>
-			{data && (
+			{mutation.isSuccess && (
 				<pre className="bg-gray-100 p-4 rounded-md">
 					<code>
-						Message: {data.message} <br />
-						Success: {data.success.toString()}
+						Message: {mutation.data?.message} <br />
+						Success: {mutation.data?.success.toString()}
 					</code>
 				</pre>
 			)}
