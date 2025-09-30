@@ -5,14 +5,17 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc",
-		"dev": "bun --watch run src/index.ts && tsc --watch"
+		"dev": "bun --watch run src/index.ts && tsc --watch",
+		"test": "bun test src"
 	},
 	"dependencies": {
 		"hono": "^4.7.11",
 		"shared": "workspace:*",
 		"bitcoinjs-lib": "^6.1.5",
 		"ecpair": "^2.1.0",
-		"tiny-secp256k1": "^2.2.3"
+		"tiny-secp256k1": "^2.2.3",
+		"@getalby/sdk": "^6.0.1",
+		"websocket-polyfill": "^1.0.0"
 	},
 	"devDependencies": {
 		"@types/bun": "latest"
