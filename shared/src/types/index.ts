@@ -14,7 +14,14 @@ export type BitcoinGift = {
 	sender_email?: string;
 	recipient_address?: string;
 	payment_txid?: string; // Transaction ID of incoming payment
-	status: 'pending' | 'paid' | 'active' | 'queued' | 'redeemed' | 'expired' | 'cancelled';
+	status:
+		| "pending"
+		| "paid"
+		| "active"
+		| "queued"
+		| "redeemed"
+		| "expired"
+		| "cancelled";
 	created_at: Date;
 	expires_at: Date;
 	paid_at?: Date;
@@ -30,7 +37,7 @@ export type RedemptionRequest = {
 	queued_at: Date;
 	processed_at?: Date;
 	batch_id?: string;
-	status: 'queued' | 'processing' | 'completed' | 'failed';
+	status: "queued" | "processing" | "completed" | "failed";
 };
 
 export type BatchTransaction = {
@@ -39,7 +46,7 @@ export type BatchTransaction = {
 	total_amount_sats: number;
 	fee_sats: number;
 	output_count: number;
-	status: 'creating' | 'broadcasting' | 'confirmed' | 'failed';
+	status: "creating" | "broadcasting" | "confirmed" | "failed";
 	created_at: Date;
 	confirmed_at?: Date;
 };
@@ -88,12 +95,12 @@ export type LightningGift = {
 	amount_sats: number;
 	payment_hash: string;
 	payment_request: string;
-	status: 'pending' | 'paid' | 'redeemed' | 'expired';
+	status: "pending" | "paid" | "redeemed" | "expired";
 	created_at: Date;
 	expires_at: Date;
 };
 
-export type PaymentMethod = 'mainnet' | 'lightning';
+export type PaymentMethod = "mainnet" | "lightning";
 
 export type GiftOptions = {
 	method: PaymentMethod;
@@ -107,7 +114,7 @@ export type AddressMonitor = {
 	expected_amount_sats: number;
 	created_at: Date;
 	last_checked_at?: Date;
-	status: 'monitoring' | 'paid' | 'expired' | 'cancelled';
+	status: "monitoring" | "paid" | "expired" | "cancelled";
 };
 
 export type BitcoinTransaction = {

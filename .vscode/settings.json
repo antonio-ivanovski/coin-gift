@@ -1,7 +1,7 @@
 {
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.fixAll.biome": "always"
-    },
-    "explorer.excludeGitIgnore": true,
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.biome": "always"
+	},
+	"explorer.excludeGitIgnore": true
 }

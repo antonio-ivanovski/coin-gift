@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
+	ApiResponse,
 	CreateGiftRequest,
 	CreateGiftResponse,
 	GiftStatusResponse,
-	ApiResponse,
 } from "shared/dist";
 
 // Get the server URL from environment
@@ -156,5 +156,3 @@ export function useGiftPaymentMonitoring(giftId: string | null) {
 		isExpired,
 	};
 }
-
-
