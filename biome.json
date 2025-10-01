@@ -7,6 +7,13 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
+		"includes": [
+			"client/src/**/*.ts",
+			"client/src/**/*.tsx",
+			"server/src/**/*.ts",
+			"shared/src/**/*.ts",
+			"**/package.json"
+		],
 		"experimentalScannerIgnores": [
 			"node_modules",
 			"dist",
