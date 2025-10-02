@@ -3,5 +3,9 @@
 	"editor.codeActionsOnSave": {
 		"source.fixAll.biome": "always"
 	},
-	"explorer.excludeGitIgnore": true
+	"explorer.excludeGitIgnore": true,
+	"cSpell.words": [
+		"Preimage",
+		"Preimages"
+	]
 }

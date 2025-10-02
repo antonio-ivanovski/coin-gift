@@ -1,3 +1,5 @@
+import z from "zod";
+
 export type ApiResponse = {
 	message: string;
 	success: true;
@@ -40,34 +42,38 @@ export type RedemptionRequest = {
 	status: "queued" | "processing" | "completed" | "failed";
 };
 
-export type BatchTransaction = {
-	id: string;
-	transaction_id: string;
-	total_amount_sats: number;
-	fee_sats: number;
-	output_count: number;
-	status: "creating" | "broadcasting" | "confirmed" | "failed";
-	created_at: Date;
-	confirmed_at?: Date;
-};
+export const initGiftRequestSchema = z.object({
+	count: z.number().min(1).max(20),
+	satsPerGift: z.number().min(500).max(100_000),
+	title: z.string().min(1).max(100),
+	message: z.string().max(500),
+	emoji: z.string().min(1).max(4),
+	expiryMinutes: z
+		.number()
+		.min(10)
+		.max(60 * 24 * 30),
+	notification_email: z.email().optional(),
+});
 
-export type CreateGiftRequest = {
-	amount_sats: number;
-	sender_email?: string;
-	message?: string;
-	expires_in_days?: number; // default 30
-};
+export type InitGiftRequest = z.infer<typeof initGiftRequestSchema>;
 
-export type CreateGiftResponse = {
-	success: true;
-	gift_id: string;
-	secret: string;
-	qr_code: string;
-	share_url: string;
-	payment_address: string; // Unique address for this gift
-	amount_sats: number;
-	expires_at: Date;
-};
+export const initGiftItemSchema = z.object({
+	id: z.string(),
+	invoice: z.string(),
+	redeemSecret: z.string().min(64).max(64),
+});
+export const initGiftResponseSchema = z.object({
+	id: z.string(),
+	gifts: z.array(
+		z.object({
+			id: z.string(),
+			invoice: z.string(),
+			redeem_secret: z.string().min(64).max(64),
+		}),
+	),
+});
+export type InitGiftItem = z.infer<typeof initGiftItemSchema>;
+export type InitGiftResponse = z.infer<typeof initGiftResponseSchema>;
 
 export type RedeemGiftRequest = {
 	secret: string;

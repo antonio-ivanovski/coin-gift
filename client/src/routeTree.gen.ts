@@ -8,70 +8,70 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as CreateGiftRouteImport } from "./routes/create-gift";
-import { Route as IndexRouteImport } from "./routes/index";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as CreateGiftRouteImport } from './routes/create-gift'
+import { Route as IndexRouteImport } from './routes/index'
 
 const CreateGiftRoute = CreateGiftRouteImport.update({
-	id: "/create-gift",
-	path: "/create-gift",
-	getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/create-gift',
+  path: '/create-gift',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
-	id: "/",
-	path: "/",
-	getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
-	"/": typeof IndexRoute;
-	"/create-gift": typeof CreateGiftRoute;
+  '/': typeof IndexRoute
+  '/create-gift': typeof CreateGiftRoute
 }
 export interface FileRoutesByTo {
-	"/": typeof IndexRoute;
-	"/create-gift": typeof CreateGiftRoute;
+  '/': typeof IndexRoute
+  '/create-gift': typeof CreateGiftRoute
 }
 export interface FileRoutesById {
-	__root__: typeof rootRouteImport;
-	"/": typeof IndexRoute;
-	"/create-gift": typeof CreateGiftRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/create-gift': typeof CreateGiftRoute
 }
 export interface FileRouteTypes {
-	fileRoutesByFullPath: FileRoutesByFullPath;
-	fullPaths: "/" | "/create-gift";
-	fileRoutesByTo: FileRoutesByTo;
-	to: "/" | "/create-gift";
-	id: "__root__" | "/" | "/create-gift";
-	fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/' | '/create-gift'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/create-gift'
+  id: '__root__' | '/' | '/create-gift'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-	IndexRoute: typeof IndexRoute;
-	CreateGiftRoute: typeof CreateGiftRoute;
+  IndexRoute: typeof IndexRoute
+  CreateGiftRoute: typeof CreateGiftRoute
 }
 
-declare module "@tanstack/react-router" {
-	interface FileRoutesByPath {
-		"/create-gift": {
-			id: "/create-gift";
-			path: "/create-gift";
-			fullPath: "/create-gift";
-			preLoaderRoute: typeof CreateGiftRouteImport;
-			parentRoute: typeof rootRouteImport;
-		};
-		"/": {
-			id: "/";
-			path: "/";
-			fullPath: "/";
-			preLoaderRoute: typeof IndexRouteImport;
-			parentRoute: typeof rootRouteImport;
-		};
-	}
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/create-gift': {
+      id: '/create-gift'
+      path: '/create-gift'
+      fullPath: '/create-gift'
+      preLoaderRoute: typeof CreateGiftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-	IndexRoute: IndexRoute,
-	CreateGiftRoute: CreateGiftRoute,
-};
+  IndexRoute: IndexRoute,
+  CreateGiftRoute: CreateGiftRoute,
+}
 export const routeTree = rootRouteImport
-	._addFileChildren(rootRouteChildren)
-	._addFileTypes<FileRouteTypes>();
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
