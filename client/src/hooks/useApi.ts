@@ -1,14 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
 	ApiResponse,
-	CreateGiftRequest,
-	CreateGiftResponse,
 	GiftStatusResponse,
 } from "shared/dist";
 
 // Get the server URL from environment
 const getServerUrl = () =>
-	import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
+	import.meta.env.VITE_SERVER_URL || "http://localhost:3000/api";
 
 // BTC Price Query
 export function useBTCPrice() {

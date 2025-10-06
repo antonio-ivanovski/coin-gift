@@ -20,7 +20,8 @@
 		"build:server": "turbo build --filter=server",
 		"type-check": "turbo type-check",
 		"test": "turbo test",
-		"postinstall": "turbo build --filter=shared --filter=server"
+		"postinstall": "turbo build --filter=shared --filter=server",
+		"deploy": "turbo build && wrangler deploy --minify"
 	},
 	"keywords": [
 		"bun",
@@ -31,8 +32,10 @@
 		"turbo"
 	],
 	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20251004.0",
 		"bun-types": "latest",
-		"turbo": "^2.5.8"
+		"turbo": "^2.5.8",
+		"wrangler": "^4.42.0"
 	},
 	"peerDependencies": {
 		"typescript": "^5.7.3"
