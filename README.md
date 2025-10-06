@@ -1,152 +1,168 @@
-# 🎁 Coin Gift - Bitcoin Escrow Gift Application
+# 🎁 Coin Gift - Lightning Bitcoin Gift Application
 
-Send Bitcoin gifts to friends and family using shareable secret codes. Recipients don't need wallets - just enter the code to claim their Bitcoin.
+Send Lightning Bitcoin gifts to friends and family using shareable secret codes. Recipients can claim instantly to any Lightning wallet using Nostr Wallet Connect.
 
 ## 🎯 How it Works
 
-1. **Create Gift**: Send BTC to escrow, get a secret code
-2. **Share**: Send the code/QR/link to recipient  
-3. **Claim**: Recipient enters code + their Bitcoin address to receive BTC
+1. **Create Gift**: Generate [hold invoice](https://bitcoinops.org/en/topics/hold-invoices/), get a secret code
+2. **Share**: Send the code/QR/link to recipient
+3. **Claim**: Recipient enters code and claims Lightning Bitcoin instantly
 
-**Stack**: React + Hono + Cloudflare (Workers/Pages/D1)  
-**Network**: Bitcoin Mainnet (with future Lightning Network support)  
-**Limits**: $5-$1000 for MVP
+**Stack**: React + Hono + Cloudflare (Workers/Pages/D1) + Alby SDK  
+**Network**: Lightning Network (with future Bitcoin mainnet support for only larger amounts)  
+**Limits**: $1-$100 to keep it fun and safe
 
 ## 🔄 Detailed Application Flow
 
 ```mermaid
 sequenceDiagram
-    participant A as Party A (Sender)
-    participant App as Web App
-    participant DB as Database
-    participant Monitor as Address Monitor
-    participant Queue as Redemption Queue
-    participant B as Party B (Recipient)
-    participant Email as Email Service
+    participant Sender
+    participant SenderWallet as Sender's Wallet
+    participant App as Coin Gift App
+    participant Recipient
+    participant RecipientWallet as Recipient's Wallet
 
-    A->>App: Create gift ($X BTC)
-    App->>App: Generate high-entropy secret & unique Bitcoin address
-    App->>DB: Store gift (secret hash, amount_sats, address, private_key_encrypted, pending)
-    App->>Monitor: Start monitoring unique address
-    App->>A: Display secret + unique payment address (QR + URL)
-    App->>Email: Send creation confirmation (optional)
-    
-    A->>+App: Send BTC to unique gift address (from any wallet)
-    Monitor->>App: Payment detected on gift address
-    App->>DB: Update gift status to active
-    App->>-A: Confirm payment received
-    
-    Note over A,B: Party A shares secret via secure channel
-    
-    B->>App: Enter secret code + recipient Bitcoin address
-    App->>DB: Verify secret hash & check expiration
-    App->>Monitor: Create individual redemption transaction
-    App->>B: Processing gift redemption
-    
-    Note over Monitor,App: Individual Transaction Processing
-    Monitor->>B: Send BTC from gift address to recipient address
-    Monitor->>App: Confirm transaction completed
-    App->>DB: Mark gift as completed
-    App->>Email: Send redemption confirmation (optional)
+    Sender->>App: Create gift + secret code
+    App->>App: Generate hold invoice & encrypt preimage
+    App->>Sender: Show payment invoice (QR code)
 
-    Note over A,Monitor: Cancellation/Recovery Flow
-    alt After 10 minutes (wrong amount) or expiration (30 days)
-        A->>App: Request cancellation with secret
-        App->>DB: Verify ownership & timing rules
-        App->>Monitor: Process individual refund transaction
-        Monitor->>A: Transfer BTC back to sender
-        App->>DB: Mark gift as cancelled
-        App->>Email: Send cancellation confirmation (optional)
-    end
+    Sender->>SenderWallet: Pay hold invoice
+    Note over SenderWallet, App: Funds are HELD, not transferred
+    SenderWallet-->>App: Payment confirmed (funds locked)
+
+    Note over Sender, Recipient: Share secret code securely
+
+    Recipient->>App: Enter secret code
+    App->>App: Decrypt preimage with secret
+    Recipient->>RecipientWallet: Generate invoice
+    Recipient->>App: Provide payment invoice
+
+    App->>App: Release hold payment with preimage
+    Note over App, RecipientWallet: App briefly escrows during transfer
+    App->>RecipientWallet: Send gift payment
+
+    Note over App: Funds never stored long-term in app
 ```
-
 
 ## ✨ Features
 
-- 🔐 Secure Bitcoin storage with secret codes
-- 📱 QR codes and mobile-friendly
-- ⚡ Unique address per gift for reliable payments
-- ⏰ 30-day expiration (sender recoverable)
-- 🚀 No Bitcoin wallet needed for recipients initially
-- 🔮 Future: Lightning Network support for instant micro-gifts
+- ⚡ Lightning Network for instant settlements
+- 🔐 Hold invoice security - funds stay in sender's wallet until claimed
+- � Encrypted preimage storage - only recipient's secret can release funds
+- �📱 QR codes and mobile-friendly interface
+- 🔗 Nostr Wallet Connect integration for seamless wallet connections
+- ⏰ 30-day default expiration (user configurable) with automatic fund release
+- 🎁 Batch gifting support for multiple recipients
+- 🚀 Recipients need any Lightning wallet (WebLN supported)
+- 🆓 Completely free - optional donations welcome
+- 🔮 Future: Bitcoin mainnet support for larger amounts ($100+)
 
 ## 🏗️ Tech Stack
 
 **Monorepo Structure:**
-- `client/` - React + TypeScript + Vite 
+
+- `client/` - React + TypeScript + Vite
 - `server/` - Hono API on Cloudflare Workers
 - `shared/` - Common types and utilities
 
 **Infrastructure:**
+
 - Frontend: Cloudflare Pages
-- Backend: Cloudflare Workers  
+- Backend: Cloudflare Workers
 - Database: Cloudflare D1 (SQLite)
-- Bitcoin: Unique address per gift for reliable payment tracking
-- Address Monitoring: Electrum servers / BlockCypher API
+- Lightning: Alby SDK for hold invoices and settlements
+- Wallet Connect: Nostr Wallet Connect (NWC) protocol
 - Package Manager: Bun
 
-**Bitcoin Libraries:**
-- bitcoinjs-lib: Transaction building and signing
-- Electrum API: Blockchain monitoring and fee estimation
-- Future: Lightning Network integration (WebLN/BTCPay Server)
+**Lightning Libraries:**
 
-**Why Cloudflare:** Simple, cheap (free tier), single platform for everything.
+- Alby SDK: Hold invoice creation and Lightning payments
+- Nostr Wallet Connect: Wallet integration protocol
+- WebLN: Browser-based Lightning wallet support
+- Future: bitcoinjs-lib for mainnet Bitcoin integration
+
+**Why This Stack:**
+
+- **Cloudflare**: Simple, cheap (free tier), single platform
+- **Lightning Network**: Instant settlements, micro-transaction friendly
+- **Hold Invoices**: Superior security - funds never leave sender's wallet until claimed
+- **Alby SDK**: Mature Lightning infrastructure with excellent developer experience
 
 ## 🚀 Development Plan
 
-**Phase 1: Bitcoin Mainnet MVP**
+**Phase 1: Lightning Network MVP**
+
 - [ ] Monorepo setup with Bun ✅
-- [ ] Hono API + D1 database with Bitcoin schemas
-- [ ] React frontend with Bitcoin theming
+- [ ] Hono API + D1 database with Lightning schemas
+- [ ] React frontend with Lightning theming
 - [ ] Secret generation + QR codes
-- [ ] Bitcoin gift creation flow with unique addresses
-- [ ] Address generation and monitoring system
-- [ ] Individual gift redemption system
-- [ ] Bitcoin wallet integration (external wallet support)
-- [ ] Blockchain monitoring via Electrum/BlockCypher APIs
-- [ ] Private key management and encryption
-- [ ] Fee optimization & UTXO management
+- [ ] Alby SDK integration for hold invoices
+- [ ] Nostr Wallet Connect (NWC) integration
+- [ ] Lightning gift creation and redemption flow
+- [ ] WebLN browser wallet support
+- [ ] Batch gifting functionality
+- [ ] Hold invoice security implementation
+- [ ] Mobile wallet deep linking
 - [ ] Deploy to Cloudflare
 
-**Phase 2: Lightning Network Integration**
-- [ ] Lightning Service Provider (LSP) integration
-- [ ] WebLN browser wallet support
-- [ ] Instant redemption option
+**Phase 2: Bitcoin Mainnet Integration**
+
+- [ ] Bitcoin mainnet support for larger transactions ($100+)
+- [ ] Address generation and monitoring system
+- [ ] Fee optimization & UTXO management
 - [ ] Lightning/Mainnet routing logic
-- [ ] Mobile wallet deep linking
+- [ ] Private key management for mainnet
 
 **Phase 3: Advanced Features**
-- [ ] Multi-signature security
-- [ ] Gift scheduling
-- [ ] Bulk gift creation
-- [ ] Advanced analytics
+
+- [ ] Gift scheduling and delayed releases
+- [ ] Advanced batch operations
+- [ ] Multi-signature security options
+- [ ] Analytics dashboard
+- [ ] API for third-party integrations
 
 ## 🔒 Security Notes
 
-- High-entropy secrets (32+ chars)
+- **Hold Invoice Security**: Funds never leave sender's wallet until recipient claims
+- **Encrypted Preimage Storage**: App stores encrypted preimage that only the recipient's secret code can decrypt
+- **No Raw Preimage Access**: Application cannot release hold payments without the recipient's redemption code
+- **Minimal Escrow Time**: App only holds funds for seconds during the transfer process
+- **Attack Resistance**: Even if app is compromised, funds remain secure in hold invoices
+- High-entropy secrets (32+ chars) with secure generation
 - Secrets hashed in database (SHA-256)
 - Rate limiting on API endpoints
-- 30-day expiration with sender recovery
-- Unique address per gift eliminates payment confusion
-- Private keys encrypted at rest (AES-256)
-- Individual transactions reduce complexity and improve reliability
-- Address monitoring via trusted third-party APIs
-- HTTPS everywhere
-- Future: Hardware wallet integration for escrow
+- 30-day default expiration (configurable) with automatic fund release
+- Nostr Wallet Connect for secure wallet integration
+- HTTPS everywhere with Cloudflare security
+- Lightning Network's built-in cryptographic security
+- Future: Hardware wallet integration via WebLN
 
 ## 💰 Fee Structure & Economics
 
-**Mainnet Individual Transaction Approach:**
-- Platform Fee: 1.5% (competitive with gift card services)
-- Network Fees: Standard Bitcoin transaction fees (~$1-15 depending on network congestion)
-- Total Cost: ~3-8% for gifts $25+ (simplified, reliable processing)
+**Completely Free Service:**
 
-**Lightning Network (Future):**
-- Platform Fee: 1% (lower due to reduced operational costs)
-- Network Fees: <$0.01 per transaction
-- Total Cost: ~1.1% (perfect for micro-gifts $1-20)
+- Platform Fee: 0% - No fees whatsoever
+- Lightning Network Fees: <$0.01 per transaction (standard Lightning routing)
+- Total Cost: Just Lightning network routing fees (~<$0.01)
 
-**Gift Amount Recommendations:**
-- $5-25: Wait for Lightning integration (high fee ratio on mainnet)
-- $25+: Good for mainnet with individual transactions
-- $100+: Excellent value proposition vs traditional methods
+**Optional Donations:**
+
+- Senders can add optional donations when creating gifts
+- Recipients can leave tips when claiming gifts
+- Donations help support development and infrastructure
+- 100% transparent - you choose if and how much to contribute
+
+**Why Free:**
+
+- Lower barriers to Bitcoin adoption
+- Educational tool for Lightning Network
+- Community-driven development
+- Sustainable through voluntary donations
+
+**Perfect For:**
+
+- Any amount from $1 to $100+ (minimal Lightning fees)
+- Teaching friends and family about Bitcoin and Lightning
+- Fun, casual gifting without financial friction
+- Micro-gifts and tips
+- Holiday gifts, birthdays, special occasions
