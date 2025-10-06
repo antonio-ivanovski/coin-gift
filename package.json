@@ -21,7 +21,9 @@
 		"type-check": "turbo type-check",
 		"test": "turbo test",
 		"postinstall": "turbo build --filter=shared --filter=server",
-		"deploy": "turbo build && wrangler deploy --minify"
+		"build:single": "bun run build && bun run copy:static && bun run build:server",
+		"copy:static": "rm -rf server/static && cp -r client/dist server/static",
+		"start:single": "cd server && bun run dist/index.js"
 	},
 	"keywords": [
 		"bun",
@@ -34,8 +36,7 @@
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20251004.0",
 		"bun-types": "latest",
-		"turbo": "^2.5.8",
-		"wrangler": "^4.42.0"
+		"turbo": "^2.5.8"
 	},
 	"peerDependencies": {
 		"typescript": "^5.7.3"

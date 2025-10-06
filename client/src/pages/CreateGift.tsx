@@ -424,8 +424,8 @@ export function CreateGiftPage() {
 	} = useBTCPrice();
 	const createGiftMutation = useCreateGift();
 	const {
-		giftStatus,
-		isLoading: statusLoading,
+		giftStatus: _giftStatus,
+		isLoading: _statusLoading,
 		startMonitoring,
 		isAwaitingPayment: queryIsAwaitingPayment,
 		isPaymentConfirmed: queryIsPaymentConfirmed,

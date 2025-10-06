@@ -2,8 +2,8 @@ import crypto from "node:crypto";
 import type { NWCClient } from "@getalby/sdk";
 import { zValidator as zv } from "@hono/zod-validator";
 import { Hono } from "hono";
+import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
 import { validator } from "hono/validator";
 import { type InitGiftResponse, initGiftRequestSchema } from "shared/dist";
 import z from "zod";
@@ -23,7 +23,12 @@ type Env = {
 	};
 };
 
-export const app = new Hono<Env>().use(cors());
+export const app = new Hono<Env>();
+
+// Only use CORS in development
+if (process.env.NODE_ENV !== "production") {
+	app.use(cors());
+}
 
 app.post(
 	"/init-gifts",
@@ -58,6 +63,13 @@ app.post(
 		} satisfies InitGiftResponse);
 	},
 );
+
+// Serve static files for everything else
+app.use("*", serveStatic({ root: "./static" }));
+
+app.get("*", async (c, next) => {
+	return serveStatic({ root: "./static", path: "index.html" })(c, next);
+});
 
 // TODO: need to store invoice in order to watch for status
 
