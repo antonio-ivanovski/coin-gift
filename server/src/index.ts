@@ -1,20 +1,31 @@
 import crypto from "node:crypto";
+import path from "node:path";
 import type { NWCClient } from "@getalby/sdk";
 import { zValidator as zv } from "@hono/zod-validator";
+
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
 import { validator } from "hono/validator";
 import { type InitGiftResponse, initGiftRequestSchema } from "shared/dist";
 import z from "zod";
+import { applyDbMigrations } from "./db";
+import { usersTable } from "./db/schema";
 import { encryptPreimage } from "./encryption";
 import { initiateGiftInvoices } from "./initiateGifts";
-import {
-	type GiftsToStore,
-	type GiftToStore,
-	getGiftsBatch,
-	storeGifts,
-} from "./storage";
+import { getGiftsBatch, storeGifts } from "./storage";
+
+applyDbMigrations();
+
+const user = await db
+	.insert(usersTable)
+	.values({
+		name: "Alice",
+		age: 30,
+		email: `alice+${crypto.randomBytes(16).toString("base64url")}@example.com`,
+	})
+	.returning();
+console.log("Inserted user with ID:", user);
 
 type Env = {
 	Bindings: {};

@@ -6,7 +6,9 @@
 	"scripts": {
 		"build": "tsc",
 		"dev": "bun --watch run src/index.ts && tsc --watch",
-		"test": "bun test src"
+		"test": "bun test src",
+		"drizzle:generate": "drizzle-kit generate",
+		"drizzle:migrate": "drizzle-kit migrate"
 	},
 	"dependencies": {
 		"hono": "^4.9.9",
@@ -14,9 +16,13 @@
 		"@getalby/sdk": "^6.0.1",
 		"websocket-polyfill": "^1.0.0",
 		"zod": "^4.1.11",
-		"@hono/zod-validator": "^0.7.3"
+		"@hono/zod-validator": "^0.7.3",
+		"@libsql/client": "^0.15.15",
+		"drizzle-orm": "^0.44.6"
 	},
 	"devDependencies": {
-		"@types/bun": "latest"
+		"@types/bun": "latest",
+		"drizzle-kit": "^0.31.5",
+		"dotenv": "^17.2.3"
 	}
 }
