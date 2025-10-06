@@ -1,12 +1,12 @@
-# 🎁 Coin Gift - Lightning Bitcoin Gift Application
+# 🎁 Coin Gift - Bitcoin Gift Application
 
-Send Lightning Bitcoin gifts to friends and family using shareable secret codes. Recipients can claim instantly to any Lightning wallet using Nostr Wallet Connect.
+Send Bitcoin gifts to friends and family using shareable secret codes. Recipients can claim instantly to any Lightning wallet using Nostr Wallet Connect.
 
 ## 🎯 How it Works
 
 1. **Create Gift**: Generate [hold invoice](https://bitcoinops.org/en/topics/hold-invoices/), get a secret code
 2. **Share**: Send the code/QR/link to recipient
-3. **Claim**: Recipient enters code and claims Lightning Bitcoin instantly
+3. **Claim**: Recipient enters code and claims Bitcoin instantly
 
 **Stack**: React + Hono + Cloudflare (Workers/Pages/D1) + Alby SDK  
 **Network**: Lightning Network (with future Bitcoin mainnet support for only larger amounts)  

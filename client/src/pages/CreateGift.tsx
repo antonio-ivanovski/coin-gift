@@ -8,11 +8,7 @@ import {
 import { useCopyToClipboard } from "../hooks/useCopyToClipboard";
 
 interface GiftData {
-	amount: {
-		usd: number;
-		btc: number;
-		sats: number;
-	};
+	sats: number;
 	title: string;
 	message: string;
 	occasionType:
@@ -28,7 +24,7 @@ interface GiftData {
 	giftId?: string;
 }
 
-const PRESET_BTC_AMOUNTS = [0.0001, 0.0005, 0.001, 0.0025, 0.005]; // ~$10, $50, $100, $250, $500 at $100k BTC
+const PRESET_SATS_AMOUNTS = [10000, 50000, 100000, 250000, 500000]; // ~$10, $50, $100, $250, $500 at $100k BTC
 
 const OCCASIONS: Pick<
 	GiftData,
@@ -73,13 +69,14 @@ const OCCASIONS: Pick<
 ];
 
 const EMOJI_OPTIONS = [
+	"⚡",
 	"🎁",
 	"🎂",
 	"🙏",
 	"💎",
 	"🚀",
 	"🌙",
-	"⚡",
+	"💜",
 	"❤️",
 	"💝",
 	"🔥",
@@ -106,7 +103,7 @@ interface ProgressStepsProps {
 
 interface AmountSelectionProps {
 	giftData: GiftData;
-	onAmountChange: (btc: number, sats: number) => void;
+	onAmountChange: (sats: number) => void;
 	btcPrice: { usd: number; source: string };
 	btcPriceLoading?: boolean;
 	btcPriceError?: Error | null;
@@ -190,32 +187,32 @@ function AmountSelection({
 
 			<div className="mb-6">
 				<div className="block text-sm font-semibold text-gray-700 mb-3">
-					Gift Amount (BTC)
+					Gift Amount (Satoshis)
 				</div>
 				<div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
-					{PRESET_BTC_AMOUNTS.map((amount) => (
+					{PRESET_SATS_AMOUNTS.map((sats) => (
 						<button
 							type="button"
-							key={amount}
+							key={sats}
 							onClick={() =>
-								onAmountChange(amount, Math.round(amount * SATS_PER_BTC))
+								onAmountChange(sats)
 							}
 							className={`p-3 rounded-xl font-bold transition-all border-2 ${
-								Math.abs(giftData.amount.btc - amount) < 0.0001
+								giftData.sats === sats
 									? "bg-amber-500 text-white border-amber-600 shadow-lg scale-105"
 									: "bg-gray-100 text-gray-700 border-gray-200 hover:bg-amber-50 hover:border-amber-200"
 							}`}
 						>
-							{amount} BTC
+							{sats} SATS
 						</button>
 					))}
 					<input
 						type="number"
 						placeholder="Custom"
-						value={giftData.amount.btc || ""}
+						value={giftData.sats || ''}
 						onChange={(e) => {
-							const btc = Number(e.target.value);
-							onAmountChange(btc, Math.round(btc * SATS_PER_BTC));
+							const sats = Number(e.target.value);
+							onAmountChange(sats);
 						}}
 						className="p-3 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:outline-none font-semibold text-center"
 						min="0.0001"
@@ -224,7 +221,10 @@ function AmountSelection({
 					/>
 				</div>
 				<div className="text-xs text-gray-500 text-center">
-					Choose your gift amount in Bitcoin
+					Choose your gift amount in Satoshis
+					<div>
+					{`1 BTC = ${SATS_PER_BTC.toLocaleString()} SATS`}
+					</div>
 					{btcPrice && (
 						<div className="mt-1 text-amber-600">
 							Current BTC Price: ${btcPrice.usd.toLocaleString()}
@@ -238,15 +238,14 @@ function AmountSelection({
 				</div>
 			</div>
 
-			{giftData.amount.btc > 0 && (
+			{giftData.sats > 0 && (
 				<div className="bg-gradient-to-r from-orange-100 to-yellow-100 p-4 rounded-2xl border-2 border-orange-200">
 					<div className="text-center">
 						<div className="text-3xl font-black text-orange-800">
-							{giftData.amount.btc.toFixed(6)} BTC
+							{giftData.sats} SATS
 						</div>
 						<div className="text-sm text-orange-600 mt-1">
-							{giftData.amount.sats.toLocaleString()} sats • ≈ $
-							{giftData.amount.usd.toFixed(2)} USD
+							{`${giftData.sats.toLocaleString()} sats ≈ ${giftData.sats / SATS_PER_BTC} BTC ≈ $${((giftData.sats / SATS_PER_BTC) * btcPrice.usd).toFixed(2)} USD`}
 						</div>
 					</div>
 				</div>
@@ -389,7 +388,7 @@ export function CreateGiftPage() {
 	const emailId = useId();
 	const [currentStep, setCurrentStep] = useState(1);
 	const [giftData, setGiftData] = useState<GiftData>({
-		amount: { usd: 0, btc: 0, sats: 0 },
+		sats: 0,
 		title: "",
 		message: "",
 		occasionType: "custom",
@@ -449,16 +448,9 @@ export function CreateGiftPage() {
 		giftData.giftId,
 	]);
 
-	const handleBtcAmountChange = (btc: number, sats?: number) => {
-		const calculatedSats = sats || Math.round(btc * SATS_PER_BTC);
-		const calculatedBtc = sats ? sats / SATS_PER_BTC : btc;
-		const currentBtcPrice = btcPrice.usd;
-		const usd = calculatedBtc * currentBtcPrice;
-		setGiftData((prev) => ({
-			...prev,
-			amount: { usd, btc: calculatedBtc, sats: calculatedSats },
-		}));
-		if (calculatedBtc > 0 && currentStep === 1) {
+	const handleSatsAmountChange = (sats: number) => {
+		setGiftData((prev) => ({ ...prev, sats }));
+		if (sats > 0 && currentStep === 1) {
 			setCurrentStep(2);
 		}
 	};
@@ -475,7 +467,7 @@ export function CreateGiftPage() {
 		try {
 			// Use Tanstack Query mutation to create gift
 			const result = await createGiftMutation.mutateAsync({
-				amount_sats: giftData.amount.sats,
+				amount_sats: giftData.sats,
 				sender_email: giftData.notificationEmail || undefined,
 				message: giftData.message || undefined,
 				expires_in_days: 30,
@@ -503,7 +495,7 @@ export function CreateGiftPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-orange-300 via-amber-400 to-yellow-300 p-4">
+		<div className="min-h-screen bg-gradient-to-br from-purple-400 via-blue-500 to-yellow-400 p-4">
 			<div className="max-w-2xl mx-auto">
 				{/* Header */}
 				<div className="text-center mb-8 pt-8">
@@ -516,10 +508,10 @@ export function CreateGiftPage() {
 						</Link>
 					</div>
 					<h1 className="text-4xl md:text-6xl font-black text-white mb-4 drop-shadow-lg">
-						Create Crypto Gift 🎁
+						Create Bitcoin Gift ⚡
 					</h1>
 					<p className="text-lg text-white/90 font-medium">
-						Send crypto gifts that anyone can claim! 🚀
+						Send instant Bitcoin gifts with secret codes! ⚡🎁
 					</p>
 				</div>
 
@@ -527,7 +519,7 @@ export function CreateGiftPage() {
 
 				<AmountSelection
 					giftData={giftData}
-					onAmountChange={handleBtcAmountChange}
+					onAmountChange={handleSatsAmountChange}
 					btcPrice={btcPrice}
 					btcPriceLoading={btcPriceLoading}
 					btcPriceError={btcPriceError}
@@ -637,7 +629,7 @@ export function CreateGiftPage() {
 							<button
 								type="button"
 								onClick={handleConfirmGift}
-								disabled={isGeneratingAddress || giftData.amount.btc === 0}
+								disabled={isGeneratingAddress || giftData.sats === 0}
 								className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-4 px-8 rounded-2xl text-xl shadow-lg transition-all transform hover:scale-105 border border-orange-400 disabled:cursor-not-allowed"
 							>
 								{isGeneratingAddress ? (
@@ -664,11 +656,10 @@ export function CreateGiftPage() {
 									Payment Details
 								</h3>
 								<div className="text-3xl font-black text-orange-800 mb-2">
-									{giftData.amount.btc.toFixed(6)} BTC
+									{giftData.sats} SATS
 								</div>
 								<div className="text-sm text-orange-600 mb-4">
-									{giftData.amount.sats.toLocaleString()} sats • $
-									{giftData.amount.usd.toFixed(2)} USD
+									{giftData.sats / SATS_PER_BTC} BTC
 								</div>
 								{giftData.title && (
 									<div className="text-lg font-semibold text-gray-700">
@@ -751,7 +742,7 @@ export function CreateGiftPage() {
 									<li>
 										• Send{" "}
 										<strong>
-											exactly {giftData.amount.btc.toFixed(6)} BTC
+											exactly {giftData.sats} SATS
 										</strong>{" "}
 										to the address
 									</li>
@@ -838,7 +829,7 @@ export function CreateGiftPage() {
 									// Reset for new gift
 									setCurrentStep(1);
 									setGiftData({
-										amount: { usd: 0, btc: 0, sats: 0 },
+										sats: 0,
 										title: "",
 										message: "",
 										occasionType: "custom",
@@ -851,9 +842,9 @@ export function CreateGiftPage() {
 									setIsAwaitingPayment(false);
 									setPaymentConfirmed(false);
 								}}
-								className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white font-bold py-3 px-6 rounded-2xl hover:from-amber-600 hover:to-yellow-600 transition-all transform hover:scale-105 border border-amber-400"
+								className="bg-gradient-to-r from-purple-500 to-blue-500 text-white font-bold py-3 px-6 rounded-2xl hover:from-purple-600 hover:to-blue-600 transition-all transform hover:scale-105 border border-purple-400"
 							>
-								🎁 Create Another Gift
+								⚡ Create Another Bitcoin Gift
 							</button>
 						</div>
 					</div>
