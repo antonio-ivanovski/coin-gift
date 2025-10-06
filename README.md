@@ -8,7 +8,7 @@ Send Bitcoin gifts to friends and family using shareable secret codes. Recipient
 2. **Share**: Send the code/QR/link to recipient
 3. **Claim**: Recipient enters code and claims Bitcoin instantly
 
-**Stack**: React + Hono + Cloudflare (Workers/Pages/D1) + Alby SDK  
+**Stack**: React + Hono + Traditional Server Deployment + Alby SDK  
 **Network**: Lightning Network (with future Bitcoin mainnet support for only larger amounts)  
 **Limits**: $1-$100 to keep it fun and safe
 
@@ -67,9 +67,9 @@ sequenceDiagram
 
 **Infrastructure:**
 
-- Frontend: Cloudflare Pages
-- Backend: Cloudflare Workers
-- Database: Cloudflare D1 (SQLite)
+- Frontend: Static hosting
+- Backend: Traditional server deployment (considering Fly.io, Railway, or similar)
+- Database: SQLite
 - Lightning: Alby SDK for hold invoices and settlements
 - Wallet Connect: Nostr Wallet Connect (NWC) protocol
 - Package Manager: Bun
@@ -83,10 +83,11 @@ sequenceDiagram
 
 **Why This Stack:**
 
-- **Cloudflare**: Simple, cheap (free tier), single platform
+- **Traditional Server**: Full control, persistent connections, long-running processes
 - **Lightning Network**: Instant settlements, micro-transaction friendly
 - **Hold Invoices**: Superior security - funds never leave sender's wallet until claimed
 - **Alby SDK**: Mature Lightning infrastructure with excellent developer experience
+- **Flexible Deployment**: Can choose optimal hosting platform
 
 ## 🚀 Development Plan
 
@@ -103,7 +104,7 @@ sequenceDiagram
 - [ ] Batch gifting functionality
 - [ ] Hold invoice security implementation
 - [ ] Mobile wallet deep linking
-- [ ] Deploy to Cloudflare
+- [ ] Deploy to chosen hosting platform (Fly.io or similar)
 
 **Phase 2: Bitcoin Mainnet Integration**
 
@@ -133,7 +134,7 @@ sequenceDiagram
 - Rate limiting on API endpoints
 - 30-day default expiration (configurable) with automatic fund release
 - Nostr Wallet Connect for secure wallet integration
-- HTTPS everywhere with Cloudflare security
+- HTTPS everywhere with proper SSL/TLS configuration
 - Lightning Network's built-in cryptographic security
 - Future: Hardware wallet integration via WebLN
 
