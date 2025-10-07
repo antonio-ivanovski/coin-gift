@@ -1,22 +1,35 @@
 import crypto from "node:crypto";
-import type { NWCClient } from "@getalby/sdk";
+import { validateHeaderName } from "node:http";
+import type { NWCClient } from "@getalby/sdk/nwc";
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
+import { createMiddleware } from "hono/factory";
 import { validator } from "hono/validator";
-import { type InitGiftResponse, initGiftRequestSchema } from "shared/dist";
-import z from "zod";
+import {
+	type InitGiftResponse,
+	initGiftRequestSchema,
+	type StandaloneDonationRequest,
+	type StandaloneDonationResponse,
+	standaloneDonationRequestSchema,
+	type WaitlistSignupRequest,
+	type WaitlistSignupResponse,
+	waitlistSignupRequestSchema,
+} from "shared/dist";
 import { applyDbMigrations } from "./db";
 import { encryptPreimage } from "./encryption";
 import { initiateGiftInvoices } from "./initiateGifts";
+import { nwcClient } from "./nwc";
 import { getGiftsBatch, storeGifts } from "./storage";
-
-console.log("Starting server...");
+import { createDonationInvoice, createWaitlistSignup } from "./waitlist";
 
 applyDbMigrations();
 
 type Env = {
-	Bindings: {};
+	Bindings: {
+		DATABASE_URL: string;
+		NWC_URL: string;
+	};
 	Variables: {
 		nwcClient: NWCClient;
 	};
@@ -28,6 +41,12 @@ export const app = new Hono<Env>();
 if (process.env.NODE_ENV !== "production") {
 	app.use(cors());
 }
+
+const diMiddleware = createMiddleware<Env>(async (c, next) => {
+	c.set("nwcClient", nwcClient as NWCClient);
+	await next();
+});
+app.use(diMiddleware);
 
 app.post(
 	"/init-gifts",
@@ -63,23 +82,68 @@ app.post(
 	},
 );
 
+// Waitlist API endpoints
+
+// Waitlist signup endpoint
+app.post(
+	"/api/waitlist/signup",
+	validator("json", (v) => waitlistSignupRequestSchema.parse(v)),
+	async (c) => {
+		const body = c.req.valid("json") as WaitlistSignupRequest;
+
+		// Create waitlist signup
+		const signup = await createWaitlistSignup(body);
+
+		// Create donation invoice if requested
+		const donation = body.donationAmountSats
+			? await createDonationInvoice(
+					body.donationAmountSats,
+					c.get("nwcClient"),
+					signup.id,
+				)
+			: undefined;
+
+		const response: WaitlistSignupResponse = {
+			success: true,
+			signupId: signup.id,
+			donationInvoice: donation?.invoice,
+			donationPaymentHash: donation?.paymentHash,
+		};
+
+		return c.json(response);
+	},
+);
+
+// Standalone donation endpoint
+app.post(
+	"/api/waitlist/donate",
+	validator("json", (v) => standaloneDonationRequestSchema.parse(v)),
+	async (c) => {
+		const body = c.req.valid("json") as StandaloneDonationRequest;
+
+		// Create donation invoice
+		const donation = await createDonationInvoice(
+			body.donationAmountSats,
+			c.get("nwcClient"),
+		);
+
+		const response: StandaloneDonationResponse = {
+			id: donation.id,
+			amountSats: donation.amountSats,
+			createdAt: donation.createdAt,
+			donationInvoice: donation.invoice,
+			donationPaymentHash: donation.paymentHash,
+		};
+
+		return c.json(response);
+	},
+);
+
 // Serve static files for everything else
 app.use("*", serveStatic({ root: "./static" }));
 
 app.get("*", async (c, next) => {
 	return serveStatic({ root: "./static", path: "index.html" })(c, next);
 });
-
-// TODO: need to store invoice in order to watch for status
-
-app.post(
-	"/complete-gifts/:giftsId",
-	validator("param", (v) => z.object({ giftsId: z.string() }).parse(v)),
-	async (c) => {
-		const { giftsId } = c.req.valid("param");
-		const giftBatch = await getGiftsBatch(giftsId);
-		if (!giftBatch) return c.notFound();
-	},
-);
 
 export default app;

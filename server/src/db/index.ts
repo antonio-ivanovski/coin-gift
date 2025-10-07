@@ -3,14 +3,22 @@ import { rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { drizzle } from "drizzle-orm/bun-sqlite";
 import { migrate } from "drizzle-orm/bun-sqlite/migrator";
-import { usersTable } from "./schema";
+import { waitlistDonationsTable, waitlistSignupsTable } from "./schema";
 
 console.log("Using database at:", process.env.DATABASE_URL);
 const sqlite = new Database(process.env.DATABASE_URL, { create: true });
-export const db = drizzle({ client: sqlite, schema: { users: usersTable } });
+export const db = drizzle({
+	client: sqlite,
+	schema: {
+		waitlistSignups: waitlistSignupsTable,
+		waitlistDonations: waitlistDonationsTable,
+	},
+});
 
 export async function applyDbMigrations() {
+	console.log("Applying database migrations...");
 	migrate(db, {
 		migrationsFolder: path.resolve(import.meta.dir, "../../drizzle"),
 	});
+	console.log("Database migrations applied.");
 }

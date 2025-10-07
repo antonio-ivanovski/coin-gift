@@ -5,32 +5,6 @@ export type ApiResponse = {
 	success: true;
 };
 
-export type BitcoinGift = {
-	id: string;
-	secret_hash: string;
-	amount_sats: number;
-	amount_usd?: number;
-	gift_address: string; // Unique Bitcoin address for this gift
-	private_key_encrypted: string; // AES encrypted private key
-	sender_address?: string; // Sender's refund address
-	sender_email?: string;
-	recipient_address?: string;
-	payment_txid?: string; // Transaction ID of incoming payment
-	status:
-		| "pending"
-		| "paid"
-		| "active"
-		| "queued"
-		| "redeemed"
-		| "expired"
-		| "cancelled";
-	created_at: Date;
-	expires_at: Date;
-	paid_at?: Date;
-	redeemed_at?: Date;
-	batch_id?: string;
-};
-
 export type RedemptionRequest = {
 	id: string;
 	gift_id: string;
@@ -88,12 +62,6 @@ export type RedeemGiftResponse = {
 	batch_position?: number;
 };
 
-export type GiftStatusResponse = {
-	success: true;
-	gift: BitcoinGift;
-	estimated_processing_time?: string;
-};
-
 // Lightning Network types (for future use)
 export type LightningGift = {
 	id: string;
@@ -139,3 +107,5 @@ export type GeneratedAddress = {
 	public_key: string;
 	derivation_path?: string;
 };
+
+export * from "./waitlist";

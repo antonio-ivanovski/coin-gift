@@ -2,8 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useId, useState } from "react";
 import {
 	useBTCPrice,
-	useCreateGift,
-	useGiftPaymentMonitoring,
 } from "../hooks/useApi";
 import { useCopyToClipboard } from "../hooks/useCopyToClipboard";
 

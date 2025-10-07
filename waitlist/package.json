@@ -1,9 +1,13 @@
 {
-	"name": "client",
+	"name": "waitlist",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
-	"scripts": {},
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
 	"dependencies": {
 		"@tailwindcss/vite": "^4.1.10",
 		"@tanstack/react-query": "^5.90.2",
@@ -11,12 +15,9 @@
 		"@tanstack/react-router-devtools": "^1.132.11",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0",
-		"server": "workspace:*",
 		"shared": "workspace:*",
 		"tailwindcss": "^4.1.10",
-		"@heroicons/react": "^2.2.0",
-		"qrcode": "^1.5.3",
-		"bitcoinjs-lib": "^6.1.5"
+		"qrcode.react": "^4.2.0"
 	},
 	"devDependencies": {
 		"@tanstack/router-plugin": "^1.132.7",
@@ -24,7 +25,6 @@
 		"@types/react": "^19.1.8",
 		"@types/react-dom": "^19.1.6",
 		"@vitejs/plugin-react": "^4.5.2",
-		"globals": "^16.2.0",
 		"typescript": "~5.7.3",
 		"vite": "^6.3.5"
 	}

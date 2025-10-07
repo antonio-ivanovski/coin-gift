@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import type { Nip47Transaction, NWCClient } from "@getalby/sdk";
+import type { Nip47Transaction, NWCClient } from "@getalby/sdk/nwc";
 
 export type InitiateGiftsResultItem = {
 	preimage: Buffer;

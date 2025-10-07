@@ -9,14 +9,17 @@
 	"workspaces": [
 		"./server",
 		"./client",
-		"./shared"
+		"./shared",
+		"./waitlist"
 	],
 	"scripts": {
 		"dev": "turbo dev",
 		"dev:client": "turbo dev --filter=client",
+		"dev:waitlist": "turbo dev --filter=waitlist",
 		"dev:server": "turbo dev --filter=server",
 		"build": "turbo build",
 		"build:client": "turbo build --filter=client",
+		"build:waitlist": "turbo build --filter=waitlist",
 		"build:server": "turbo build --filter=server",
 		"type-check": "turbo type-check",
 		"test": "turbo test",
