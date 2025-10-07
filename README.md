@@ -62,7 +62,7 @@ sequenceDiagram
 **Monorepo Structure:**
 
 - `client/` - React + TypeScript + Vite
-- `server/` - Hono API on Cloudflare Workers
+- `server/` - Hono API
 - `shared/` - Common types and utilities
 
 **Infrastructure:**

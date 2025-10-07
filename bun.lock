@@ -7,7 +7,6 @@
         "hono": "^4.9.9",
       },
       "devDependencies": {
-        "@cloudflare/workers-types": "^4.20251004.0",
         "bun-types": "latest",
         "turbo": "^2.5.8",
       },
