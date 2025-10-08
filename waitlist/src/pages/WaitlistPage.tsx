@@ -1,3 +1,4 @@
+import { clsx } from "clsx";
 import { QRCodeSVG } from "qrcode.react";
 import { useState } from "react";
 import type { StandaloneDonationResponse } from "shared/dist";
@@ -5,6 +6,9 @@ import { DonationAmountSelector } from "../components/DonationAmountSelector";
 import { GlassCard, GradientButton } from "../components/UI";
 import { useStandaloneDonation, useWaitlistSignup } from "../hooks/useApi";
 import { useCopyToClipboard } from "../hooks/useCopyToClipboard";
+
+const MIN_DONATION_AMOUNT = 500;
+const DEFAULT_DONATION_AMOUNT = 1000;
 
 export function WaitlistPage() {
 	const [activeTab, setActiveTab] = useState<"waitlist" | "donate">("waitlist");
@@ -36,21 +40,23 @@ export function WaitlistPage() {
 						<div className="flex bg-white/10 rounded-xl p-1 backdrop-blur-sm">
 							<button
 								onClick={() => setActiveTab("waitlist")}
-								className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all cursor-pointer ${
+								className={clsx(
+									"flex-1 py-3 px-4 rounded-lg font-semibold transition-all cursor-pointer",
 									activeTab === "waitlist"
 										? "bg-white text-gray-900"
-										: "text-white hover:bg-white/10"
-								}`}
+										: "text-white hover:bg-white/10",
+								)}
 							>
 								📧 Join Waitlist
 							</button>
 							<button
 								onClick={() => setActiveTab("donate")}
-								className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all cursor-pointer ${
+								className={clsx(
+									"flex-1 py-3 px-4 rounded-lg font-semibold transition-all cursor-pointer",
 									activeTab === "donate"
 										? "bg-white text-gray-900"
-										: "text-white hover:bg-white/10"
-								}`}
+										: "text-white hover:bg-white/10",
+								)}
 							>
 								💝 Support Dev
 							</button>
@@ -87,7 +93,7 @@ export function WaitlistPage() {
 
 function WaitlistForm({ onComplete }: { onComplete: () => void }) {
 	const [email, setEmail] = useState("");
-	const [donationAmount, setDonationAmount] = useState(5000);
+	const [donationAmount, setDonationAmount] = useState(DEFAULT_DONATION_AMOUNT);
 	const [includeDonation, setIncludeDonation] = useState(false);
 
 	const waitlistSignupMutation = useWaitlistSignup();
@@ -163,14 +169,16 @@ function WaitlistForm({ onComplete }: { onComplete: () => void }) {
 						<button
 							type="button"
 							onClick={() => setIncludeDonation(!includeDonation)}
-							className={`w-12 h-6 rounded-full transition-colors ${
-								includeDonation ? "bg-yellow-400" : "bg-white/20"
-							}`}
+							className={clsx(
+								"w-12 h-6 rounded-full transition-colors",
+								includeDonation ? "bg-yellow-400" : "bg-white/20",
+							)}
 						>
 							<div
-								className={`w-5 h-5 rounded-full bg-white transition-transform ${
-									includeDonation ? "translate-x-6" : "translate-x-0.5"
-								}`}
+								className={clsx(
+									"w-5 h-5 rounded-full bg-white transition-transform",
+									includeDonation ? "translate-x-6" : "translate-x-0.5",
+								)}
 							/>
 						</button>
 					</div>
@@ -182,6 +190,7 @@ function WaitlistForm({ onComplete }: { onComplete: () => void }) {
 							</p>
 							<DonationAmountSelector
 								amount={donationAmount}
+								minAmount={MIN_DONATION_AMOUNT}
 								onChange={setDonationAmount}
 							/>
 						</div>
@@ -190,7 +199,11 @@ function WaitlistForm({ onComplete }: { onComplete: () => void }) {
 
 				<GradientButton
 					type="submit"
-					disabled={waitlistSignupMutation.isPending || !email}
+					disabled={
+						waitlistSignupMutation.isPending ||
+						!email ||
+						(includeDonation && donationAmount < MIN_DONATION_AMOUNT)
+					}
 					className="w-full"
 					gradientFrom="from-yellow-500"
 					gradientTo="to-orange-500"
@@ -216,7 +229,7 @@ function WaitlistForm({ onComplete }: { onComplete: () => void }) {
 }
 
 function DonationForm({ onComplete }: { onComplete: () => void }) {
-	const [donationAmount, setDonationAmount] = useState(5000);
+	const [donationAmount, setDonationAmount] = useState(DEFAULT_DONATION_AMOUNT);
 
 	const donationMutation = useStandaloneDonation();
 
@@ -261,6 +274,7 @@ function DonationForm({ onComplete }: { onComplete: () => void }) {
 					<DonationAmountSelector
 						amount={donationAmount}
 						onChange={setDonationAmount}
+						minAmount={MIN_DONATION_AMOUNT}
 					/>
 				</div>
 

@@ -1,3 +1,4 @@
+import { clsx } from "clsx";
 import type { ReactNode } from "react";
 
 interface GlassCardProps {
@@ -5,10 +6,13 @@ interface GlassCardProps {
 	className?: string;
 }
 
-export function GlassCard({ children, className = "" }: GlassCardProps) {
+export function GlassCard({ children, className }: GlassCardProps) {
 	return (
 		<div
-			className={`bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 ${className}`}
+			className={clsx(
+				"bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20",
+				className,
+			)}
 		>
 			{children}
 		</div>
@@ -30,7 +34,7 @@ interface GradientButtonProps {
 export function GradientButton({
 	children,
 	onClick,
-	className = "",
+	className,
 	gradientFrom = "from-purple-500",
 	gradientTo = "to-blue-500",
 	hoverFrom = "hover:from-purple-600",
@@ -43,7 +47,15 @@ export function GradientButton({
 			type={type}
 			onClick={onClick}
 			disabled={disabled}
-			className={`cursor-pointer bg-gradient-to-r ${gradientFrom} ${gradientTo} ${hoverFrom} ${hoverTo} disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-4 px-8 rounded-2xl text-xl shadow-2xl transition-all transform hover:scale-105 disabled:cursor-not-allowed disabled:transform-none ${className}`}
+			className={clsx(
+				"cursor-pointer bg-gradient-to-r text-white font-bold py-4 px-8 rounded-2xl text-xl shadow-2xl transition-all transform hover:scale-105",
+				gradientFrom,
+				gradientTo,
+				hoverFrom,
+				hoverTo,
+				"disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed disabled:transform-none",
+				className,
+			)}
 		>
 			{children}
 		</button>

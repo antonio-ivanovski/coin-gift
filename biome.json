@@ -14,7 +14,8 @@
 			"waitlist/src/**/*.tsx",
 			"server/src/**/*.ts",
 			"shared/src/**/*.ts",
-			"**/package.json"
+			"**/package.json",
+			"**/vite.config.ts"
 		],
 		"experimentalScannerIgnores": [
 			"node_modules",

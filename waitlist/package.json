@@ -17,7 +17,8 @@
 		"react-dom": "^19.1.0",
 		"shared": "workspace:*",
 		"tailwindcss": "^4.1.10",
-		"qrcode.react": "^4.2.0"
+		"qrcode.react": "^4.2.0",
+		"clsx": "^2.1.1"
 	},
 	"devDependencies": {
 		"@tanstack/router-plugin": "^1.132.7",
