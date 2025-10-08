@@ -1,9 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 
-// Get the server URL from environment
-const getServerUrl = () =>
-	import.meta.env.VITE_SERVER_URL || "http://localhost:3000/api";
-
 // BTC Price Query
 export function useBTCPrice() {
 	return useQuery({

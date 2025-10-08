@@ -2,7 +2,7 @@ FROM oven/bun:1
 WORKDIR /app
 # Copy package files
 COPY package.json bun.lock ./
-COPY client/package.json ./client/
+COPY waitlist/package.json ./waitlist/
 COPY server/package.json ./server/
 COPY shared/package.json ./shared/
  

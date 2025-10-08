@@ -26,7 +26,7 @@ export type StandaloneDonationResponse = {
 };
 
 export const MIN_DONATION_AMOUNT = 100;
-export const DEFAULT_DONATION_AMOUNT = 100;
+export const DEFAULT_DONATION_AMOUNT = 1000;
 export const MAX_DONATION_AMOUNT = 100000;
 
 // Waitlist validation schemas

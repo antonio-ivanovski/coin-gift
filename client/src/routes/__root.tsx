@@ -3,7 +3,6 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { Client } from "server/dist/client";
 
 type RouterContext = {
-	apiClient: Client;
 };
 
 export const Route = createRootRouteWithContext<RouterContext>()({

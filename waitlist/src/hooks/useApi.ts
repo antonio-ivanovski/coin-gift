@@ -1,20 +1,18 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import type {
-	WaitlistSignupRequest,
-	WaitlistSignupResponse,
 	StandaloneDonationRequest,
 	StandaloneDonationResponse,
+	WaitlistSignupRequest,
+	WaitlistSignupResponse,
 } from "shared/dist";
-
-// Get the server URL from environment
-const getServerUrl = () =>
-	import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
 
 // Waitlist signup mutation
 export function useWaitlistSignup() {
 	return useMutation({
-		mutationFn: async (data: WaitlistSignupRequest): Promise<WaitlistSignupResponse> => {
-			const response = await fetch(`${getServerUrl()}/api/waitlist/signup`, {
+		mutationFn: async (
+			data: WaitlistSignupRequest,
+		): Promise<WaitlistSignupResponse> => {
+			const response = await fetch("/api/waitlist/signup", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -43,8 +41,10 @@ export function useWaitlistSignup() {
 // Standalone donation mutation (for donations without signup)
 export function useStandaloneDonation() {
 	return useMutation({
-		mutationFn: async (data: StandaloneDonationRequest): Promise<StandaloneDonationResponse> => {
-			const response = await fetch(`${getServerUrl()}/api/waitlist/donate`, {
+		mutationFn: async (
+			data: StandaloneDonationRequest,
+		): Promise<StandaloneDonationResponse> => {
+			const response = await fetch("/api/waitlist/donate", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",

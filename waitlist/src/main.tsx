@@ -6,15 +6,11 @@ import "./index.css";
 
 const queryClient = new QueryClient();
 
-import { hcWithType } from "server/dist/client";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000/api";
-const apiClient = hcWithType(SERVER_URL);
-
 // Create a new router instance
-const router = createRouter({ routeTree, context: { apiClient } });
+const router = createRouter({ routeTree });
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {
