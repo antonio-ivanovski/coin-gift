@@ -1,10 +1,9 @@
-import crypto from "node:crypto";
-import { validateHeaderName } from "node:http";
 import type { NWCClient } from "@getalby/sdk/nwc";
 import { Hono } from "hono";
-import { serveStatic } from "hono/bun";
+import { createBunWebSocket, serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
 import { createMiddleware } from "hono/factory";
+import { streamSSE } from "hono/streaming";
 import { validator } from "hono/validator";
 import {
 	type InitGiftResponse,
@@ -39,7 +38,13 @@ export const app = new Hono<Env>();
 
 // Only use CORS in development
 if (process.env.NODE_ENV !== "production") {
-	app.use(cors());
+	app.use(
+		cors({
+			origin: "http://localhost:5174",
+			allowHeaders: ["Cache-Control"],
+			credentials: true,
+		}),
+	);
 }
 
 const diMiddleware = createMiddleware<Env>(async (c, next) => {
@@ -139,6 +144,52 @@ app.post(
 	},
 );
 
+const { upgradeWebSocket, websocket } = createBunWebSocket();
+app.get(
+	"/ws",
+	upgradeWebSocket((c) => {
+		let intervalId: NodeJS.Timeout;
+		return {
+			onOpen(_event, ws) {
+				intervalId = setInterval(() => {
+					ws.send(new Date().toString());
+				}, 1000);
+			},
+			onClose() {
+				clearInterval(intervalId);
+			},
+		};
+	}),
+);
+
+let id = 0;
+app.get("/sse", async (c) => {
+	console.log("SSE connection established");
+	return streamSSE(
+		c,
+		async (stream) => {
+			console.log("Starting SSE stream");
+			while (true) {
+				const message = `It is ${new Date().toISOString()}`;
+				console.log("Sending SSE message:", message);
+				await stream.writeSSE({
+					data: message,
+					event: "time-update",
+					id: String(id++),
+				});
+				console.log("SSE message sent:", message);
+				console.log("SSE stream sleeping for 1 second");
+				await stream.sleep(1000);
+				console.log("SSE stream woke up");
+			}
+		},
+		async (e, stream) => {
+			console.error("SSE stream error:", e);
+			await stream.close();
+		},
+	);
+});
+
 // Serve static files for everything else
 app.use("*", serveStatic({ root: "./static" }));
 
@@ -146,4 +197,7 @@ app.get("*", async (c, next) => {
 	return serveStatic({ root: "./static", path: "index.html" })(c, next);
 });
 
-export default app;
+export default {
+	fetch: app.fetch,
+	websocket,
+};
