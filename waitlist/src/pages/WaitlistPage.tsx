@@ -91,10 +91,12 @@ export function WaitlistPage() {
 	);
 }
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function WaitlistForm({ onComplete }: { onComplete: () => void }) {
 	const [email, setEmail] = useState("");
 	const [donationAmount, setDonationAmount] = useState(DEFAULT_DONATION_AMOUNT);
-	const [includeDonation, setIncludeDonation] = useState(false);
+	const [includeDonation, setIncludeDonation] = useState(true);
 
 	const waitlistSignupMutation = useWaitlistSignup();
 
@@ -201,7 +203,7 @@ function WaitlistForm({ onComplete }: { onComplete: () => void }) {
 					type="submit"
 					disabled={
 						waitlistSignupMutation.isPending ||
-						!email ||
+						!EMAIL_REGEX.test(email) ||
 						(includeDonation && donationAmount < MIN_DONATION_AMOUNT)
 					}
 					className="w-full"

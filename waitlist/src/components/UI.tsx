@@ -53,7 +53,7 @@ export function GradientButton({
 				gradientTo,
 				hoverFrom,
 				hoverTo,
-				"disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed disabled:transform-none",
+				"disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed disabled:transform-none disabled:scale-100",
 				className,
 			)}
 		>

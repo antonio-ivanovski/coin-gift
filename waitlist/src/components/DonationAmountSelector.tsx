@@ -1,4 +1,5 @@
 import { clsx } from "clsx";
+import { useBtcPrice } from "../hooks/useBtcPrice";
 
 export function DonationAmountSelector({
 	amount,
@@ -11,6 +12,7 @@ export function DonationAmountSelector({
 	className?: string;
 	minAmount: number;
 }) {
+	const btcPriceQuery = useBtcPrice();
 	return (
 		<div className={className}>
 			<div className="grid grid-cols-3 gap-2 mb-4">
@@ -39,9 +41,20 @@ export function DonationAmountSelector({
 				className="w-full p-3 rounded-lg border border-white/20 bg-white/10 text-white placeholder-white/60 focus:border-yellow-400 focus:outline-none"
 				placeholder="Custom amount"
 			/>
-			<p className="text-xs text-white/60 mt-2">
-				≈ ${((amount / 100000000) * 100000).toFixed(2)} USD
-			</p>
+			<div className="mt-2 space-y-1">
+				{btcPriceQuery.isSuccess ? (
+					<p className="text-xs text-white/60">
+						≈ ${(amount * btcPriceQuery.data.satsPrice).toFixed(2)} USD
+					</p>
+				) : btcPriceQuery.isPending ? (
+					<p className="text-xs text-white/60">Loading price...</p>
+				) : (
+					<p className="text-xs text-white/60">Failed to load price</p>
+				)}
+				<p className="text-xs text-white/50">
+					Minimum donation: {minAmount} sats
+				</p>
+			</div>
 		</div>
 	);
 }
