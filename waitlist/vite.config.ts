@@ -13,15 +13,15 @@ export default defineConfig({
 		react(),
 		tailwindcss(),
 	],
-	server: { 
+	server: {
 		port: 5174, // Different port from main client to avoid conflicts
-		proxy: { 
-		"/api": { 
-			target: "http://localhost:3000", 
-			changeOrigin: true, 
-		}, 
-		}, 
-	}, 
+		proxy: {
+			"/api": {
+				target: "http://localhost:3000",
+				changeOrigin: true,
+			},
+		},
+	},
 	preview: {
 		port: 4174, // Different preview port too
 	},

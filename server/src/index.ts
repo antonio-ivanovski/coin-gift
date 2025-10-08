@@ -38,13 +38,7 @@ export const app = new Hono<Env>();
 
 // Only use CORS in development
 if (process.env.NODE_ENV !== "production") {
-	app.use(
-		cors({
-			origin: "http://localhost:5174",
-			allowHeaders: ["Cache-Control"],
-			credentials: true,
-		}),
-	);
+	app.use(cors());
 }
 
 const diMiddleware = createMiddleware<Env>(async (c, next) => {
@@ -179,7 +173,7 @@ app.get("/sse", async (c) => {
 				});
 				console.log("SSE message sent:", message);
 				console.log("SSE stream sleeping for 1 second");
-				await stream.sleep(1000);
+				await stream.sleep(3000);
 				console.log("SSE stream woke up");
 			}
 		},
