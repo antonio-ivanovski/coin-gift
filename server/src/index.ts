@@ -8,6 +8,7 @@ import { validator } from "hono/validator";
 import {
 	type InitGiftResponse,
 	initGiftRequestSchema,
+	type PaymentStatusEvent,
 	type StandaloneDonationRequest,
 	type StandaloneDonationResponse,
 	standaloneDonationRequestSchema,
@@ -18,6 +19,11 @@ import {
 import { applyDbMigrations } from "./db";
 import { encryptPreimage } from "./encryption";
 import { initiateGiftInvoices } from "./initiateGifts";
+import {
+	initializeDonationPaymentMonitoring,
+	shutdownDonationPaymentMonitoring,
+	subscribeToPayment,
+} from "./monitorDonationPayments";
 import { nwcClient } from "./nwc";
 import { getGiftsBatch, storeGifts } from "./storage";
 import { createDonationInvoice, createWaitlistSignup } from "./waitlist";
@@ -138,47 +144,65 @@ app.post(
 	},
 );
 
-const { upgradeWebSocket, websocket } = createBunWebSocket();
-app.get(
-	"/ws",
-	upgradeWebSocket((c) => {
-		let intervalId: NodeJS.Timeout;
-		return {
-			onOpen(_event, ws) {
-				intervalId = setInterval(() => {
-					ws.send(new Date().toString());
-				}, 1000);
-			},
-			onClose() {
-				clearInterval(intervalId);
-			},
-		};
-	}),
-);
+// Payment status monitoring via SSE
+app.get("/api/payments/:paymentHash/status", async (c) => {
+	const paymentHash = c.req.param("paymentHash");
 
-let id = 0;
-app.get("/sse", async (c) => {
-	console.log("SSE connection established");
+	console.log(`SSE connection established for payment: ${paymentHash}`);
+
 	return streamSSE(
 		c,
 		async (stream) => {
-			console.log("Starting SSE stream");
+			// Send initial connection confirmation
+			await stream.writeSSE({
+				data: "connected" satisfies PaymentStatusEvent,
+				event: "connected",
+			});
+
+			const unsubscribeFromPayment = subscribeToPayment(
+				paymentHash,
+				async (status, notification) => {
+					console.log(
+						`Payment ${paymentHash} status update: ${status}`,
+						notification,
+					);
+
+					// Send payment status update to client
+					await stream.writeSSE({
+						data: status satisfies PaymentStatusEvent,
+						event: "payment-status",
+					});
+
+					unsubscribeFromPayment();
+					await stream.close();
+				},
+			);
+
+			// Keep connection alive with periodic heartbeats
+			let heartbeatCount = 0;
 			while (true) {
-				const message = `It is ${new Date().toISOString()}`;
-				console.log("Sending SSE message:", message);
+				await stream.sleep(5 * 1000); // 5 second heartbeat, bun has timeout of 10s
+				heartbeatCount++;
+
+				// Send heartbeat (with comment to avoid triggering events)
 				await stream.writeSSE({
-					data: message,
-					event: "time-update",
-					id: String(id++),
+					data: `heartbeat-${heartbeatCount}` satisfies PaymentStatusEvent,
+					event: "heartbeat",
 				});
-				console.log("SSE message sent:", message);
-				console.log("SSE stream sleeping for 1 second");
-				await stream.sleep(3000);
-				console.log("SSE stream woke up");
+
+				// Optional: Add timeout after a certain period
+				if (heartbeatCount > 200) {
+					console.log(
+						`Payment ${paymentHash} SSE timeout after 100 heartbeats`,
+					);
+					unsubscribeFromPayment();
+					await stream.close();
+					break;
+				}
 			}
 		},
-		async (e, stream) => {
-			console.error("SSE stream error:", e);
+		async (err, stream) => {
+			console.error(`SSE error for payment ${paymentHash}:`, err);
 			await stream.close();
 		},
 	);
@@ -191,7 +215,21 @@ app.get("*", async (c, next) => {
 	return serveStatic({ root: "./static", path: "index.html" })(c, next);
 });
 
-export default {
-	fetch: app.fetch,
-	websocket,
-};
+await initializeDonationPaymentMonitoring(nwcClient).then(() => {
+	console.log("Server ready with payment monitoring active");
+});
+
+// Handle shutdown gracefully
+process.on("SIGINT", async () => {
+	console.log("\nReceived SIGINT, shutting down gracefully...");
+	shutdownDonationPaymentMonitoring();
+	process.exit(0);
+});
+
+process.on("SIGTERM", async () => {
+	console.log("\nReceived SIGTERM, shutting down gracefully...");
+	shutdownDonationPaymentMonitoring();
+	process.exit(0);
+});
+
+export default app;

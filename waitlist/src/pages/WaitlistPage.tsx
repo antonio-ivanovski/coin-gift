@@ -1,18 +1,15 @@
 import { clsx } from "clsx";
 import { QRCodeSVG } from "qrcode.react";
 import { useState } from "react";
-import type { StandaloneDonationResponse } from "shared/dist";
+import { DEFAULT_DONATION_AMOUNT, MIN_DONATION_AMOUNT } from "shared";
 import { DonationAmountSelector } from "../components/DonationAmountSelector";
 import { GlassCard, GradientButton } from "../components/UI";
 import { useStandaloneDonation, useWaitlistSignup } from "../hooks/useApi";
 import { useCopyToClipboard } from "../hooks/useCopyToClipboard";
-
-const MIN_DONATION_AMOUNT = 500;
-const DEFAULT_DONATION_AMOUNT = 1000;
+import { usePaymentStatus } from "../hooks/usePaymentStatus";
 
 export function WaitlistPage() {
 	const [activeTab, setActiveTab] = useState<"waitlist" | "donate">("waitlist");
-	const [isCompleted, setIsCompleted] = useState(false);
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-purple-500 via-blue-500 to-yellow-400">
@@ -34,43 +31,37 @@ export function WaitlistPage() {
 					</p>
 				</div>
 
-				{/* Tab Navigation - Hide when completed */}
-				{!isCompleted && (
-					<div className="max-w-md mx-auto mb-8">
-						<div className="flex bg-white/10 rounded-xl p-1 backdrop-blur-sm">
-							<button
-								onClick={() => setActiveTab("waitlist")}
-								className={clsx(
-									"flex-1 py-3 px-4 rounded-lg font-semibold transition-all cursor-pointer",
-									activeTab === "waitlist"
-										? "bg-white text-gray-900"
-										: "text-white hover:bg-white/10",
-								)}
-							>
-								📧 Join Waitlist
-							</button>
-							<button
-								onClick={() => setActiveTab("donate")}
-								className={clsx(
-									"flex-1 py-3 px-4 rounded-lg font-semibold transition-all cursor-pointer",
-									activeTab === "donate"
-										? "bg-white text-gray-900"
-										: "text-white hover:bg-white/10",
-								)}
-							>
-								💝 Support Dev
-							</button>
-						</div>
+				{/* Tab Navigation */}
+				<div className="max-w-md mx-auto mb-8">
+					<div className="flex bg-white/10 rounded-xl p-1 backdrop-blur-sm">
+						<button
+							onClick={() => setActiveTab("waitlist")}
+							className={clsx(
+								"flex-1 py-3 px-4 rounded-lg font-semibold transition-all cursor-pointer",
+								activeTab === "waitlist"
+									? "bg-white text-gray-900"
+									: "text-white hover:bg-white/10",
+							)}
+						>
+							📧 Join Waitlist
+						</button>
+						<button
+							onClick={() => setActiveTab("donate")}
+							className={clsx(
+								"flex-1 py-3 px-4 rounded-lg font-semibold transition-all cursor-pointer",
+								activeTab === "donate"
+									? "bg-white text-gray-900"
+									: "text-white hover:bg-white/10",
+							)}
+						>
+							💝 Support Dev
+						</button>
 					</div>
-				)}
+				</div>
 
 				{/* Content */}
 				<div className="max-w-md mx-auto">
-					{activeTab === "waitlist" ? (
-						<WaitlistForm onComplete={() => setIsCompleted(true)} />
-					) : (
-						<DonationForm onComplete={() => setIsCompleted(true)} />
-					)}
+					{activeTab === "waitlist" ? <WaitlistForm /> : <DonationForm />}
 				</div>
 
 				{/* Footer */}
@@ -93,7 +84,7 @@ export function WaitlistPage() {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function WaitlistForm({ onComplete }: { onComplete: () => void }) {
+function WaitlistForm() {
 	const [email, setEmail] = useState("");
 	const [donationAmount, setDonationAmount] = useState(DEFAULT_DONATION_AMOUNT);
 	const [includeDonation, setIncludeDonation] = useState(true);
@@ -111,12 +102,13 @@ function WaitlistForm({ onComplete }: { onComplete: () => void }) {
 	// Show invoice first if donation was included
 	if (
 		waitlistSignupMutation.isSuccess &&
-		waitlistSignupMutation.data.donationInvoice
+		waitlistSignupMutation.data.donationInvoice &&
+		waitlistSignupMutation.data.donationPaymentHash
 	) {
 		return (
 			<WaitlistInvoice
 				invoice={waitlistSignupMutation.data.donationInvoice}
-				onProceed={() => {}}
+				paymentHash={waitlistSignupMutation.data.donationPaymentHash}
 			/>
 		);
 	}
@@ -230,7 +222,7 @@ function WaitlistForm({ onComplete }: { onComplete: () => void }) {
 	);
 }
 
-function DonationForm({ onComplete }: { onComplete: () => void }) {
+function DonationForm() {
 	const [donationAmount, setDonationAmount] = useState(DEFAULT_DONATION_AMOUNT);
 
 	const donationMutation = useStandaloneDonation();
@@ -244,7 +236,7 @@ function DonationForm({ onComplete }: { onComplete: () => void }) {
 		return (
 			<WaitlistInvoice
 				invoice={donationMutation.data.donationInvoice}
-				onProceed={() => {}}
+				paymentHash={donationMutation.data.donationPaymentHash}
 			/>
 		);
 	}
@@ -282,7 +274,9 @@ function DonationForm({ onComplete }: { onComplete: () => void }) {
 
 				<GradientButton
 					type="submit"
-					disabled={donationMutation.isPending || donationAmount < 1000}
+					disabled={
+						donationMutation.isPending || donationAmount < MIN_DONATION_AMOUNT
+					}
 					className="w-full"
 					gradientFrom="from-purple-500"
 					gradientTo="to-blue-500"
@@ -311,13 +305,86 @@ function DonationForm({ onComplete }: { onComplete: () => void }) {
 
 function WaitlistInvoice({
 	invoice,
-	onProceed,
+	paymentHash,
 }: {
 	invoice: string;
-	onProceed: () => void;
+	paymentHash: string;
 }) {
 	const copyMutation = useCopyToClipboard();
+	const payment = usePaymentStatus(paymentHash);
 
+	// Show success message when payment is settled
+	if (payment.data === "settled") {
+		return (
+			<GlassCard className="p-8 text-center">
+				<div className="text-6xl mb-6">🎉</div>
+				<h2 className="text-3xl font-bold text-white mb-4">
+					Payment Received!
+				</h2>
+				<p className="text-white/80 mb-6 text-lg">
+					Thank you for supporting Coin Gift development! ⚡
+				</p>
+
+				<div className="bg-green-500/20 border border-green-400/30 rounded-xl p-6 mb-6">
+					<div className="flex items-center justify-center gap-2 mb-2">
+						<span className="text-green-400 text-2xl">✅</span>
+						<span className="text-green-300 font-semibold">
+							Payment Confirmed
+						</span>
+					</div>
+					<p className="text-green-200/80 text-sm">
+						Your transaction has been settled on the Lightning Network
+					</p>
+				</div>
+
+				<div className="space-y-4">
+					<button
+						onClick={() => window.location.reload()}
+						className="text-white/60 hover:text-white/80 text-sm underline cursor-pointer"
+					>
+						← Make another donation
+					</button>
+				</div>
+			</GlassCard>
+		);
+	}
+
+	// Show error/failed message
+	if (payment.isError || payment.data === "failed") {
+		return (
+			<GlassCard className="p-8 text-center">
+				<div className="text-6xl mb-6">❌</div>
+				<h2 className="text-3xl font-bold text-white mb-4">Payment Failed</h2>
+				<p className="text-white/80 mb-6">
+					{payment.isError
+						? "There was an error monitoring the payment status."
+						: "The payment was not completed successfully."}
+				</p>
+
+				<div className="bg-red-500/20 border border-red-400/30 rounded-xl p-6 mb-6">
+					<p className="text-red-300 text-sm mb-4">
+						{payment.isError
+							? payment.error?.message || "Connection error occurred"
+							: "The Lightning invoice was not paid or has expired"}
+					</p>
+					<p className="text-red-200/70 text-xs">
+						Please go back and create a new invoice to try again
+					</p>
+				</div>
+
+				<div className="space-y-4">
+					<button
+						onClick={() => window.location.reload()}
+						className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors cursor-pointer"
+					>
+						← Go Back and Try Again
+					</button>
+				</div>
+			</GlassCard>
+		);
+	}
+
+	// Show invoice and waiting state
 	return (
 		<GlassCard className="p-8 text-center">
 			<div className="text-4xl mb-4">⚡</div>
@@ -337,7 +404,6 @@ function WaitlistInvoice({
 						value={invoice}
 						className="w-64 h-64 rounded-lg bg-white p-2"
 					/>
-					,
 				</div>
 
 				<div className="bg-white/10 rounded-lg p-3 mb-4">
@@ -355,6 +421,21 @@ function WaitlistInvoice({
 					</button>
 				</div>
 			</div>
+
+			{/* Waiting for payment indicator */}
+			{payment.isLoading && (
+				<div className="bg-blue-500/20 border border-blue-400/30 rounded-xl p-4 mb-6">
+					<div className="flex items-center justify-center gap-3">
+						<div className="animate-spin w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full" />
+						<span className="text-blue-300 font-medium">
+							Waiting for payment...
+						</span>
+					</div>
+					<p className="text-blue-200/70 text-xs mt-2">
+						Scan the QR code with your Lightning wallet
+					</p>
+				</div>
+			)}
 
 			<div className="space-y-4">
 				<button
@@ -404,32 +485,6 @@ function WaitlistSuccess({ email }: { email: string }) {
 					className="text-white/60 hover:text-white/80 text-sm underline cursor-pointer"
 				>
 					← Join again or make another donation
-				</button>
-			</div>
-		</GlassCard>
-	);
-}
-
-function DonationSuccess({
-	response,
-}: {
-	response: StandaloneDonationResponse;
-}) {
-	const copyInvoiceMutation = useCopyToClipboard();
-
-	return (
-		<GlassCard className="p-8 text-center">
-			<div className="text-4xl mb-4">💝</div>
-			<p className="text-white/80 mb-6">
-				Thank you for supporting Coin Gift development!
-			</p>
-
-			<div className="space-y-4">
-				<button
-					onClick={() => window.location.reload()}
-					className="text-white/60 hover:text-white/80 text-sm underline"
-				>
-					← Create another donation
 				</button>
 			</div>
 		</GlassCard>

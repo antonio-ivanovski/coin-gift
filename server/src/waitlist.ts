@@ -33,7 +33,7 @@ export async function createDonationInvoice(
 	// Create Lightning invoice
 	const invoice = await nwcClient.makeInvoice({
 		amount: amountSats * 1000, // Convert sats to millisats
-		description: `Coin Gift 🎁`,
+		description: `Coin Gift Donation ${signupId ? `(Signup ID: ${signupId})` : ""}`,
 	});
 
 	// Store donation record
