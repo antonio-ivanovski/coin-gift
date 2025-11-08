@@ -29,8 +29,8 @@ The waitlist app runs on http://localhost:5174 (different port from main client 
 
 The waitlist app connects to the main server API endpoints:
 
-- `POST /api/waitlist/signup` - Create waitlist signup with optional donation
-- `GET /api/waitlist/donation/:paymentHash` - Check donation payment status
+- `POST /waitlist/signup` - Create waitlist signup with optional donation
+- `GET /waitlist/donation/:paymentHash` - Check donation payment status
 
 ## Tech Stack
 

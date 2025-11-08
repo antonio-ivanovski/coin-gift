@@ -6,19 +6,25 @@ import type {
 	WaitlistSignupResponse,
 } from "shared/dist";
 
+console.log("API URL:", import.meta.env.VITE_API_URL);
+console.log("Other Env Var:", import.meta.env);
+
 // Waitlist signup mutation
 export function useWaitlistSignup() {
 	return useMutation({
 		mutationFn: async (
 			data: WaitlistSignupRequest,
 		): Promise<WaitlistSignupResponse> => {
-			const response = await fetch("/api/waitlist/signup", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
+			const response = await fetch(
+				`${import.meta.env.VITE_API_URL}/waitlist/signup`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(data),
 				},
-				body: JSON.stringify(data),
-			});
+			);
 
 			if (!response.ok) {
 				const errorData = await response
@@ -44,13 +50,16 @@ export function useStandaloneDonation() {
 		mutationFn: async (
 			data: StandaloneDonationRequest,
 		): Promise<StandaloneDonationResponse> => {
-			const response = await fetch("/api/waitlist/donate", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
+			const response = await fetch(
+				`${import.meta.env.VITE_API_URL}/waitlist/donate`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(data),
 				},
-				body: JSON.stringify(data),
-			});
+			);
 
 			if (!response.ok) {
 				const errorData = await response

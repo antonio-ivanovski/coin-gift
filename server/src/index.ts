@@ -1,6 +1,5 @@
 import type { NWCClient } from "@getalby/sdk/nwc";
 import { Hono } from "hono";
-import { createBunWebSocket, serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
 import { createMiddleware } from "hono/factory";
 import { streamSSE } from "hono/streaming";
@@ -40,12 +39,10 @@ type Env = {
 	};
 };
 
-export const app = new Hono<Env>();
-
-// Only use CORS in development
-if (process.env.NODE_ENV !== "production") {
-	app.use(cors());
+if (!process.env.APP_URL) {
+	throw new Error("APP_URL environment variable is not set");
 }
+export const app = new Hono<Env>().use(cors({ origin: process.env.APP_URL! }));
 
 const diMiddleware = createMiddleware<Env>(async (c, next) => {
 	c.set("nwcClient", nwcClient as NWCClient);
@@ -91,7 +88,7 @@ app.post(
 
 // Waitlist signup endpoint
 app.post(
-	"/api/waitlist/signup",
+	"/waitlist/signup",
 	validator("json", (v) => waitlistSignupRequestSchema.parse(v)),
 	async (c) => {
 		const body = c.req.valid("json") as WaitlistSignupRequest;
@@ -121,7 +118,7 @@ app.post(
 
 // Standalone donation endpoint
 app.post(
-	"/api/waitlist/donate",
+	"/waitlist/donate",
 	validator("json", (v) => standaloneDonationRequestSchema.parse(v)),
 	async (c) => {
 		const body = c.req.valid("json") as StandaloneDonationRequest;
@@ -145,7 +142,7 @@ app.post(
 );
 
 // Payment status monitoring via SSE
-app.get("/api/payments/:paymentHash/status", async (c) => {
+app.get("/payments/:paymentHash/status", async (c) => {
 	const paymentHash = c.req.param("paymentHash");
 
 	console.log(`SSE connection established for payment: ${paymentHash}`);
@@ -206,13 +203,6 @@ app.get("/api/payments/:paymentHash/status", async (c) => {
 			await stream.close();
 		},
 	);
-});
-
-// Serve static files for everything else
-app.use("*", serveStatic({ root: "./static" }));
-
-app.get("*", async (c, next) => {
-	return serveStatic({ root: "./static", path: "index.html" })(c, next);
 });
 
 await initializeDonationPaymentMonitoring(nwcClient).then(() => {

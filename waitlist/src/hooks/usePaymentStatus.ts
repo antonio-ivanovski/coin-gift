@@ -11,7 +11,9 @@ function waitForPaymentStatus(
 	paymentHash: string,
 ): Promise<PaymentStatusResult> {
 	return new Promise((resolve, reject) => {
-		const eventSource = new EventSource(`/api/payments/${paymentHash}/status`);
+		const eventSource = new EventSource(
+			`${import.meta.env.VITE_API_URL}/payments/${paymentHash}/status`,
+		);
 
 		console.log(`Setting up payment status SSE for: ${paymentHash}`);
 
