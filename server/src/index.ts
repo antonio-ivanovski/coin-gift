@@ -39,7 +39,9 @@ type Env = {
 	};
 };
 
-export const app = new Hono<Env>().use(cors());
+export const app = new Hono<Env>().use(
+	cors({ origin: "https://app.coingift.app" }),
+);
 
 const diMiddleware = createMiddleware<Env>(async (c, next) => {
 	c.set("nwcClient", nwcClient as NWCClient);
