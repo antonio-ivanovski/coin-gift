@@ -9,13 +9,14 @@ COPY . .
 # Install dependencies
 RUN bun install --filter '!server' --filter '!client'
 
+ENV VITE_API_URL="https://api.coingift.app"
+
 # Build the frontend application
 RUN bun run build:waitlist
 
 # Use an official Nginx image to serve the static files
 FROM nginx:alpine
 
-ENV VITE_API_URL="https://api.coin-gift.com"
 
 # Copy the built files from the build stage to Nginx's default html directory
 COPY --from=build /app/waitlist/dist /usr/share/nginx/html
