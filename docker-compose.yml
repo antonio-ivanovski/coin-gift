@@ -5,8 +5,7 @@ services:
     build:
       dockerfile: Dockerfile
       args:
-        ENV_VARIABLE: ${ENV_VARIABLE}
-        NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
+        DATABASE_URL: "/data/sqlite.db"
     volumes:
       - data:/data
     ports:
