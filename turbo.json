@@ -59,7 +59,8 @@
 				"PORT",
 				"VITE_*",
 				"NWC_URL",
-				"DATABASE_URL"
+				"DATABASE_URL",
+				"APP_URL"
 			]
 		},
 		"lint": {
