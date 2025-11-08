@@ -8,8 +8,6 @@ services:
         DATABASE_URL: "/data/sqlite.db"
     volumes:
       - data:/data
-    ports:
-      - "3000:3000"
     restart: unless-stopped
 
 volumes:
