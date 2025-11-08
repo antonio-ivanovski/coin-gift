@@ -6,6 +6,9 @@ import type {
 	WaitlistSignupResponse,
 } from "shared/dist";
 
+console.log("API URL:", import.meta.env.VITE_API_URL);
+console.log("Other Env Var:", import.meta.env);
+
 // Waitlist signup mutation
 export function useWaitlistSignup() {
 	return useMutation({

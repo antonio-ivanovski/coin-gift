@@ -9,8 +9,6 @@ COPY . .
 # Install dependencies
 RUN bun install --filter '!server' --filter '!client'
 
-RUN ls -l
-
 # Build the frontend application
 RUN bun run build:waitlist
 
