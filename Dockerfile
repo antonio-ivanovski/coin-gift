@@ -9,7 +9,7 @@ COPY shared/package.json ./shared/
 # Copy source code
 COPY . .
 
-# Install dependenciesdocker run -d -p 3000:3000
+# Install dependencies
 RUN bun install
  
 # Build for single origin
