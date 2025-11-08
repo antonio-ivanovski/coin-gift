@@ -6,6 +6,7 @@
 	"scripts": {
 		"build": "tsc",
 		"dev": "bun --watch run src/index.ts && tsc --watch",
+		"start": "bun run src/index.ts",
 		"test": "bun test src",
 		"drizzle:generate": "drizzle-kit generate",
 		"drizzle:migrate": "drizzle-kit migrate"

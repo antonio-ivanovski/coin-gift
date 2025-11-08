@@ -21,12 +21,10 @@
 		"build:client": "turbo build --filter=client",
 		"build:waitlist": "turbo build --filter=waitlist",
 		"build:server": "turbo build --filter=server",
+		"start:server": "turbo start --filter=server",
 		"type-check": "turbo type-check",
 		"test": "turbo test",
-		"postinstall": "turbo build --filter=shared --filter=server",
-		"build:single": "bun run build && bun run copy:static && bun run build:server",
-		"copy:static": "rm -rf server/static && cp -r waitlist/dist server/static",
-		"start:single": "cd server && bun run dist/index.js"
+		"postinstall": "turbo build --filter=shared"
 	},
 	"keywords": [
 		"bun",
@@ -36,14 +34,12 @@
 		"monorepo",
 		"turbo"
 	],
-	"devDependencies": {
-		"bun-types": "latest",
-		"turbo": "^2.5.8"
-	},
 	"peerDependencies": {
 		"typescript": "^5.7.3"
 	},
 	"dependencies": {
-		"hono": "^4.9.9"
+		"hono": "^4.9.9",
+		"bun-types": "latest",
+		"turbo": "^2.5.8"
 	}
 }

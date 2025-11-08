@@ -1,5 +1,3 @@
-/// <reference types="vite/client" />
-
 interface ViteTypeOptions {
 	// By adding this line, you can make the type of ImportMetaEnv strict
 	// to disallow unknown keys.
@@ -7,7 +5,7 @@ interface ViteTypeOptions {
 }
 
 interface ImportMetaEnv {
-	// more env variables...
+	VITE_API_URL: string;
 }
 
 interface ImportMeta {

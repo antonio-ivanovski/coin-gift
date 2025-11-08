@@ -1,0 +1,11 @@
+FROM oven/bun:1
+WORKDIR /app
+
+# Copy source code
+COPY . .
+
+# Install dependencies
+RUN bun install --filter '!waitlist' --filter '!client' --production
+  
+EXPOSE 3000
+CMD ["bun", "run", "start:server"]

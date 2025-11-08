@@ -3,7 +3,9 @@
 	"ui": "tui",
 	"tasks": {
 		"build": {
-			"dependsOn": ["^build"],
+			"dependsOn": [
+				"^build"
+			],
 			"inputs": [
 				"src/**/*.ts",
 				"src/**/*.tsx",
@@ -18,8 +20,15 @@
 				"eslint.config.js",
 				"index.html"
 			],
-			"outputs": ["dist/**", "build/**", ".turbo/**"],
-			"env": ["NODE_ENV", "VITE_*"]
+			"outputs": [
+				"dist/**",
+				"build/**",
+				".turbo/**"
+			],
+			"env": [
+				"NODE_ENV",
+				"VITE_*"
+			]
 		},
 		"dev": {
 			"cache": false,
@@ -34,10 +43,29 @@
 				"vite.config.ts",
 				"package.json"
 			],
-			"env": ["NODE_ENV", "PORT", "VITE_*"]
+			"env": [
+				"NODE_ENV",
+				"PORT",
+				"VITE_*"
+			]
+		},
+		"start": {
+			"dependsOn": [
+				"^build"
+			],
+			"inputs": [],
+			"env": [
+				"NODE_ENV",
+				"PORT",
+				"VITE_*",
+				"NWC_URL",
+				"DATABASE_URL"
+			]
 		},
 		"lint": {
-			"dependsOn": ["^build"],
+			"dependsOn": [
+				"^build"
+			],
 			"inputs": [
 				"src/**/*.ts",
 				"src/**/*.tsx",
@@ -49,11 +77,17 @@
 				"tsconfig.json",
 				"tsconfig.*.json"
 			],
-			"outputs": [".eslintcache"],
-			"env": ["NODE_ENV"]
+			"outputs": [
+				".eslintcache"
+			],
+			"env": [
+				"NODE_ENV"
+			]
 		},
 		"type-check": {
-			"dependsOn": ["^build"],
+			"dependsOn": [
+				"^build"
+			],
 			"inputs": [
 				"src/**/*.ts",
 				"src/**/*.tsx",
@@ -62,11 +96,18 @@
 				"tsconfig.*.json",
 				"package.json"
 			],
-			"outputs": ["dist/**/*.d.ts", ".tsbuildinfo"],
-			"env": ["NODE_ENV"]
+			"outputs": [
+				"dist/**/*.d.ts",
+				".tsbuildinfo"
+			],
+			"env": [
+				"NODE_ENV"
+			]
 		},
 		"test": {
-			"dependsOn": ["^build"],
+			"dependsOn": [
+				"^build"
+			],
 			"inputs": [
 				"src/**/*.ts",
 				"src/**/*.tsx",
@@ -88,8 +129,15 @@
 				"tsconfig.json",
 				"tsconfig.*.json"
 			],
-			"outputs": ["coverage/**", ".nyc_output/**", "test-results/**"],
-			"env": ["NODE_ENV", "CI"]
+			"outputs": [
+				"coverage/**",
+				".nyc_output/**",
+				"test-results/**"
+			],
+			"env": [
+				"NODE_ENV",
+				"CI"
+			]
 		}
 	},
 	"globalDependencies": [
