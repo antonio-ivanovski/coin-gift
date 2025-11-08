@@ -2,9 +2,9 @@ services:
   app:
     build:
       dockerfile: Dockerfile
-      args:
-        DATABASE_URL: "/data/sqlite.db"
-        NWC_URL: ${NWC_URL}
+    environment:
+      - DATABASE_URL=/data/sqlite.db
+      - NWC_URL=${NWC_URL}
     volumes:
       - data:/data
     restart: unless-stopped
