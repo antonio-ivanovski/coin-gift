@@ -15,13 +15,13 @@ RUN bun run build:waitlist
 # Use an official Nginx image to serve the static files
 FROM nginx:alpine
 
+ENV VITE_API_URL="https://api.coin-gift.com"
+
 # Copy the built files from the build stage to Nginx's default html directory
 COPY --from=build /app/waitlist/dist /usr/share/nginx/html
 
 # Expose port 80 to make the application accessible
 EXPOSE 80
-
-CMD ["echo", "$VITE_API_URL"]
 
 # Start Nginx server
 CMD ["nginx", "-g", "daemon off;"]
