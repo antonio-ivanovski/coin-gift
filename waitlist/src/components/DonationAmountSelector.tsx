@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { useBtcPrice } from "../hooks/btcPrice";
+import { useBtcPrice } from "../hooks/useBtcPrice";
 
 export function DonationAmountSelector({
 	amount,
