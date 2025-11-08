@@ -7,5 +7,5 @@ COPY . .
 # Install dependencies
 RUN bun install --filter '!waitlist' --filter '!client' --production
   
-EXPOSE 3000
+EXPOSE 3000/tcp
 CMD ["bun", "run", "start:server"]
