@@ -39,9 +39,10 @@ type Env = {
 	};
 };
 
-export const app = new Hono<Env>().use(
-	cors({ origin: "https://app.coingift.app" }),
-);
+if (!process.env.APP_URL) {
+	throw new Error("APP_URL environment variable is not set");
+}
+export const app = new Hono<Env>().use(cors({ origin: process.env.APP_URL! }));
 
 const diMiddleware = createMiddleware<Env>(async (c, next) => {
 	c.set("nwcClient", nwcClient as NWCClient);
