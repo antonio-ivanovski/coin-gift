@@ -67,8 +67,9 @@ sequenceDiagram
 
 **Infrastructure:**
 
-- Frontend: Static hosting
-- Backend: Traditional server deployment (considering Fly.io, Railway, or similar)
+- Frontend: Containerized deployment on Hetzner VPS (coingift.app)
+- Backend: Containerized deployment on Hetzner VPS (api.coingift.app)
+- Platform: Self-hosted Dokploy PaaS for container orchestration
 - Database: SQLite
 - Lightning: Alby SDK for hold invoices and settlements
 - Wallet Connect: Nostr Wallet Connect (NWC) protocol
@@ -83,28 +84,32 @@ sequenceDiagram
 
 **Why This Stack:**
 
-- **Traditional Server**: Full control, persistent connections, long-running processes
+- **Containerized Deployment**: Docker containers for consistent deployment across environments
+- **Self-hosted PaaS**: Dokploy provides Heroku-like experience on own infrastructure
+- **Hetzner VPS**: Cost-effective European hosting with excellent performance
 - **Lightning Network**: Instant settlements, micro-transaction friendly
 - **Hold Invoices**: Superior security - funds never leave sender's wallet until claimed
 - **Alby SDK**: Mature Lightning infrastructure with excellent developer experience
-- **Flexible Deployment**: Can choose optimal hosting platform
+- **Separation of Concerns**: Frontend and backend deployed as separate containerized applications
 
 ## 🚀 Development Plan
 
 **Phase 1: Lightning Network MVP**
 
-- [ ] Monorepo setup with Bun ✅
-- [ ] Hono API + D1 database with Lightning schemas
-- [ ] React frontend with Lightning theming
-- [ ] Secret generation + QR codes
+- [x] Monorepo setup with Bun ✅
+- [x] Hono API + SQLite database with Lightning schemas
+- [x] React frontend with Lightning theming
+- [x] Secret generation + QR codes
 - [ ] Alby SDK integration for hold invoices
-- [ ] Nostr Wallet Connect (NWC) integration
+- [x] Nostr Wallet Connect (NWC) integration
 - [ ] Lightning gift creation and redemption flow
-- [ ] WebLN browser wallet support
 - [ ] Batch gifting functionality
 - [ ] Hold invoice security implementation
 - [ ] Mobile wallet deep linking
-- [ ] Deploy to chosen hosting platform (Fly.io or similar)
+- [x] Containerized deployment with Docker
+- [x] Deploy Alby Hub on own infrastructure
+- [x] Deploy to Hetzner VPS with Dokploy PaaS
+- [x] Configure separate domains (coingift.app, api.coingift.app)
 
 **Phase 2: Bitcoin Mainnet Integration**
 
